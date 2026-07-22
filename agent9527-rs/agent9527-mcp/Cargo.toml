@@ -1,0 +1,48 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "agent9527-mcp"
+version.workspace = true
+
+[lib]
+name = "agent9527_mcp"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+arc-swap = { workspace = true }
+async-channel = { workspace = true }
+agent9527-async-utils = { workspace = true }
+agent9527-api = { workspace = true }
+agent9527-config = { workspace = true }
+agent9527-connectors = { workspace = true }
+agent9527-exec-server = { workspace = true }
+agent9527-login = { workspace = true }
+agent9527-model-provider = { workspace = true }
+agent9527-otel = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-rmcp-client = { workspace = true }
+agent9527-utils-path-uri = { workspace = true }
+agent9527-utils-plugins = { workspace = true }
+futures = { workspace = true }
+lru = { workspace = true }
+regex-lite = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = ["base64", "macros", "schemars", "server"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha1 = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "macros", "rt-multi-thread"] }
+tokio-util = { workspace = true, features = ["rt"] }
+tracing = { workspace = true }
+url = { workspace = true }
+
+[dev-dependencies]
+agent9527-plugin = { workspace = true }
+pretty_assertions = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = ["base64", "macros", "schemars", "server"] }
+tempfile = { workspace = true }

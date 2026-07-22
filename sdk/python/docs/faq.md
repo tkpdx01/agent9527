@@ -2,12 +2,12 @@
 
 ## Is the Python SDK stable?
 
-`openai-codex` publishes stable releases. Install the latest one with
-`pip install openai-codex`.
+`openai-agent9527` publishes stable releases. Install the latest one with
+`pip install openai-agent9527`.
 
 ## Why does the SDK install a runtime package?
 
-The SDK version tracks the corresponding Codex CLI release. Each SDK release
+The SDK version tracks the corresponding Agent9527 CLI release. Each SDK release
 pins and installs its matching runtime dependency automatically.
 
 ## Thread vs turn
@@ -26,13 +26,13 @@ Choose `run()` for most apps. Choose `stream()` for progress UIs, custom timeout
 
 ## Sync vs async clients
 
-- `Codex` is the sync public API.
-- `AsyncCodex` is an async replica of the same public API shape.
-- Prefer `async with AsyncCodex()` for async code. It is the standard path for
-  explicit startup/shutdown, and `AsyncCodex` initializes lazily on context
+- `Agent9527` is the sync public API.
+- `AsyncAgent9527` is an async replica of the same public API shape.
+- Prefer `async with AsyncAgent9527()` for async code. It is the standard path for
+  explicit startup/shutdown, and `AsyncAgent9527` initializes lazily on context
   entry or first awaited API use.
 
-If your app is not already async, stay with `Codex`.
+If your app is not already async, stay with `Agent9527`.
 
 ## How do I log in?
 
@@ -64,9 +64,9 @@ If you are migrating older code, update these names:
 Use the same `sandbox=` keyword for threads and turns:
 
 ```python
-from openai_codex import Sandbox
+from openai_agent9527 import Sandbox
 
-thread = codex.thread_start(sandbox=Sandbox.workspace_write)
+thread = agent9527.thread_start(sandbox=Sandbox.workspace_write)
 result = thread.run("Review only.", sandbox=Sandbox.read_only)
 ```
 
@@ -76,7 +76,7 @@ The presets are:
 - `Sandbox.workspace_write`: the normal default for projects with a recorded trust decision; read files and write inside the workspace and configured writable roots.
 - `Sandbox.full_access`: run without filesystem access restrictions.
 
-When `sandbox=` is omitted, Codex uses its configured default. A turn
+When `sandbox=` is omitted, Agent9527 uses its configured default. A turn
 sandbox override applies to that turn and subsequent turns.
 
 ## Why only `thread_start(...)` and `thread_resume(...)`?
@@ -90,13 +90,13 @@ This avoids duplicate ways to do the same operation and keeps behavior explicit.
 
 ## Why does constructor fail?
 
-`Codex()` is eager: it starts transport and calls `initialize` in `__init__`.
+`Agent9527()` is eager: it starts transport and calls `initialize` in `__init__`.
 
 Common causes:
 
-- installation is incomplete and the pinned `openai-codex-cli-bin` dependency is missing
-- local `codex_bin` override points to a missing file
-- a custom local Codex executable does not support the SDK operation being used
+- installation is incomplete and the pinned `openai-agent9527-cli-bin` dependency is missing
+- local `agent9527_bin` override points to a missing file
+- a custom local Agent9527 executable does not support the SDK operation being used
 
 ## Why does a turn "hang"?
 

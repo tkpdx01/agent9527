@@ -9,7 +9,7 @@ inputs:
     required: true
   binaries:
     description: Space-delimited binary basenames to sign.
-    default: "codex codex-responses-api-proxy"
+    default: "agent9527 agent9527-responses-api-proxy"
 
 runs:
   using: composite

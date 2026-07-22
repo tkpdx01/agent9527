@@ -23,15 +23,15 @@ class InstallShTest(unittest.TestCase):
         self.assertEqual(
             requests,
             [
-                "https://api.github.com/repos/openai/codex/releases/tags/"
+                "https://api.github.com/repos/tkpdx01/agent9527/releases/tags/"
                 f"rust-v{VERSION}"
             ],
         )
         self.assertIn(
-            f"Could not fetch GitHub release metadata for Codex {VERSION}",
+            f"Could not fetch GitHub release metadata for Agent9527 {VERSION}",
             result.stderr,
         )
-        self.assertNotIn("Could not find Codex package", result.stderr)
+        self.assertNotIn("Could not find Agent9527 package", result.stderr)
 
     def test_exact_release_fetches_metadata_once(self) -> None:
         result, requests = run_installer(VERSION)
@@ -40,10 +40,10 @@ class InstallShTest(unittest.TestCase):
         self.assertEqual(
             requests,
             [
-                "https://api.github.com/repos/openai/codex/releases/tags/"
+                "https://api.github.com/repos/tkpdx01/agent9527/releases/tags/"
                 f"rust-v{VERSION}",
-                "https://github.com/openai/codex/releases/download/"
-                f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                "https://github.com/tkpdx01/agent9527/releases/download/"
+                f"rust-v{VERSION}/agent9527-package_SHA256SUMS",
             ],
         )
         self.assertIn(f"Resolved version: {VERSION}", result.stdout)
@@ -55,9 +55,9 @@ class InstallShTest(unittest.TestCase):
         self.assertEqual(
             requests,
             [
-                "https://api.github.com/repos/openai/codex/releases/latest",
-                "https://github.com/openai/codex/releases/download/"
-                f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                "https://api.github.com/repos/tkpdx01/agent9527/releases/latest",
+                "https://github.com/tkpdx01/agent9527/releases/download/"
+                f"rust-v{VERSION}/agent9527-package_SHA256SUMS",
             ],
         )
         self.assertIn(f"Resolved version: {VERSION}", result.stdout)
@@ -71,9 +71,9 @@ class InstallShTest(unittest.TestCase):
         self.assertEqual(
             requests,
             [
-                "https://api.github.com/repos/openai/codex/releases/latest",
-                "https://github.com/openai/codex/releases/download/"
-                f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                "https://api.github.com/repos/tkpdx01/agent9527/releases/latest",
+                "https://github.com/tkpdx01/agent9527/releases/download/"
+                f"rust-v{VERSION}/agent9527-package_SHA256SUMS",
             ],
         )
         self.assertIn(f"Resolved version: {VERSION}", result.stdout)
@@ -85,10 +85,10 @@ class InstallShTest(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(len(requests), 2)
-        self.assertIn("/codex-npm-", requests[1])
-        self.assertNotIn("codex-package_SHA256SUMS", requests[1])
+        self.assertIn("/agent9527-npm-", requests[1])
+        self.assertNotIn("agent9527-package_SHA256SUMS", requests[1])
 
-    def test_macos_install_exposes_code_mode_host_beside_codex(self) -> None:
+    def test_macos_install_exposes_code_mode_host_beside_agent9527(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             archive_path, checksum_path, metadata_json = create_package_release(root)
@@ -104,13 +104,15 @@ class InstallShTest(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0, result.stderr)
             install_bin = root / "install-bin"
-            current = root / "codex-home" / "packages" / "standalone" / "current"
-            codex_path = install_bin / "codex"
-            host_path = install_bin / "codex-code-mode-host"
-            self.assertEqual(os.readlink(codex_path), str(current / "bin" / "codex"))
+            current = root / "agent9527-home" / "packages" / "standalone" / "current"
+            agent9527_path = install_bin / "agent9527"
+            host_path = install_bin / "agent9527-code-mode-host"
+            self.assertEqual(
+                os.readlink(agent9527_path), str(current / "bin" / "agent9527")
+            )
             self.assertEqual(
                 os.readlink(host_path),
-                str(current / "bin" / "codex-code-mode-host"),
+                str(current / "bin" / "agent9527-code-mode-host"),
             )
             self.assertTrue(os.access(host_path, os.X_OK))
 
@@ -160,26 +162,26 @@ def run_installer_in(
               fi
               previous="$arg"
             done
-            printf '%s\n' "$url" >>"$CODEX_TEST_REQUEST_LOG"
+            printf '%s\n' "$url" >>"$AGENT9527_TEST_REQUEST_LOG"
 
             case "$url" in
               https://api.github.com/*)
-                if [ "$CODEX_TEST_METADATA_FAILURE" = "1" ]; then
+                if [ "$AGENT9527_TEST_METADATA_FAILURE" = "1" ]; then
                   echo "curl: (22) The requested URL returned error: 403" >&2
                   exit 22
                 fi
-                printf '%s\n' "$CODEX_TEST_METADATA_JSON"
+                printf '%s\n' "$AGENT9527_TEST_METADATA_JSON"
                 ;;
-              */codex-package_SHA256SUMS)
-                if [ -n "$CODEX_TEST_CHECKSUM_PATH" ]; then
-                  cp "$CODEX_TEST_CHECKSUM_PATH" "$output"
+              */agent9527-package_SHA256SUMS)
+                if [ -n "$AGENT9527_TEST_CHECKSUM_PATH" ]; then
+                  cp "$AGENT9527_TEST_CHECKSUM_PATH" "$output"
                 else
                   exit 22
                 fi
                 ;;
-              */codex-package-*.tar.gz)
-                if [ -n "$CODEX_TEST_ARCHIVE_PATH" ]; then
-                  cp "$CODEX_TEST_ARCHIVE_PATH" "$output"
+              */agent9527-package-*.tar.gz)
+                if [ -n "$AGENT9527_TEST_ARCHIVE_PATH" ]; then
+                  cp "$AGENT9527_TEST_ARCHIVE_PATH" "$output"
                 else
                   exit 22
                 fi
@@ -210,17 +212,17 @@ def run_installer_in(
     env = os.environ.copy()
     env.update(
         {
-            "CODEX_HOME": str(root / "codex-home"),
-            "CODEX_INSTALL_DIR": str(root / "install-bin"),
-            "CODEX_NON_INTERACTIVE": "1",
-            "CODEX_RELEASE": release,
-            "CODEX_TEST_ARCHIVE_PATH": str(archive_path or ""),
-            "CODEX_TEST_CHECKSUM_PATH": str(checksum_path or ""),
-            "CODEX_TEST_METADATA_FAILURE": "1" if metadata_failure else "0",
-            "CODEX_TEST_METADATA_JSON": (
+            "AGENT9527_HOME": str(root / "agent9527-home"),
+            "AGENT9527_INSTALL_DIR": str(root / "install-bin"),
+            "AGENT9527_NON_INTERACTIVE": "1",
+            "AGENT9527_RELEASE": release,
+            "AGENT9527_TEST_ARCHIVE_PATH": str(archive_path or ""),
+            "AGENT9527_TEST_CHECKSUM_PATH": str(checksum_path or ""),
+            "AGENT9527_TEST_METADATA_FAILURE": "1" if metadata_failure else "0",
+            "AGENT9527_TEST_METADATA_JSON": (
                 metadata_json if metadata_json is not None else release_metadata()
             ),
-            "CODEX_TEST_REQUEST_LOG": str(request_log),
+            "AGENT9527_TEST_REQUEST_LOG": str(request_log),
             "HOME": str(home),
             "PATH": f"{bin_dir}:/usr/bin:/bin",
             "SHELL": "/bin/sh",
@@ -244,26 +246,26 @@ def run_installer_in(
 def create_package_release(root: Path) -> tuple[Path, Path, str]:
     package_dir = root / "package"
     (package_dir / "bin").mkdir(parents=True)
-    (package_dir / "codex-path").mkdir()
-    (package_dir / "codex-package.json").write_text("{}\n", encoding="utf-8")
+    (package_dir / "agent9527-path").mkdir()
+    (package_dir / "agent9527-package.json").write_text("{}\n", encoding="utf-8")
     write_executable(
-        package_dir / "bin" / "codex",
-        f"#!/bin/sh\nprintf 'codex-cli {VERSION}\\n'\n",
+        package_dir / "bin" / "agent9527",
+        f"#!/bin/sh\nprintf 'agent9527-cli {VERSION}\\n'\n",
     )
     write_executable(
-        package_dir / "bin" / "codex-code-mode-host",
+        package_dir / "bin" / "agent9527-code-mode-host",
         "#!/bin/sh\nexit 0\n",
     )
-    write_executable(package_dir / "codex-path" / "rg", "#!/bin/sh\nexit 0\n")
+    write_executable(package_dir / "agent9527-path" / "rg", "#!/bin/sh\nexit 0\n")
 
-    asset = "codex-package-aarch64-apple-darwin.tar.gz"
+    asset = "agent9527-package-aarch64-apple-darwin.tar.gz"
     archive_path = root / asset
     with tarfile.open(archive_path, "w:gz") as archive:
         for path in package_dir.iterdir():
             archive.add(path, arcname=path.name)
 
     archive_digest = hashlib.sha256(archive_path.read_bytes()).hexdigest()
-    checksum_path = root / "codex-package_SHA256SUMS"
+    checksum_path = root / "agent9527-package_SHA256SUMS"
     checksum_path.write_text(f"{archive_digest}  {asset}\n", encoding="utf-8")
     checksum_digest = hashlib.sha256(checksum_path.read_bytes()).hexdigest()
     metadata_json = json.dumps(
@@ -271,7 +273,7 @@ def create_package_release(root: Path) -> tuple[Path, Path, str]:
             "assets": [
                 {"name": asset, "digest": f"sha256:{archive_digest}"},
                 {
-                    "name": "codex-package_SHA256SUMS",
+                    "name": "agent9527-package_SHA256SUMS",
                     "digest": f"sha256:{checksum_digest}",
                 },
             ],
@@ -290,7 +292,7 @@ def write_executable(path: Path, contents: str) -> None:
 def release_metadata(*, compact: bool = False, reorder: bool = False) -> str:
     assets = [
         asset_metadata(
-            f"codex-package-{target}.tar.gz",
+            f"agent9527-package-{target}.tar.gz",
             f"sha256:{'a' * 64}",
             reorder=reorder,
         )
@@ -303,7 +305,7 @@ def release_metadata(*, compact: bool = False, reorder: bool = False) -> str:
     ]
     assets.append(
         asset_metadata(
-            "codex-package_SHA256SUMS",
+            "agent9527-package_SHA256SUMS",
             f"sha256:{'b' * 64}",
             reorder=reorder,
         )
@@ -327,18 +329,18 @@ def legacy_release_metadata_with_decoys() -> str:
     assets = [
         {
             "metadata": {
-                "name": "codex-package-x86_64-unknown-linux-musl.tar.gz",
+                "name": "agent9527-package-x86_64-unknown-linux-musl.tar.gz",
                 "digest": fake_digest,
             },
             "digest": f"sha256:{'c' * 64}",
-            "name": f"codex-npm-{target}-{VERSION}.tgz",
+            "name": f"agent9527-npm-{target}-{VERSION}.tgz",
         }
         for target in ("darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64")
     ]
     return json.dumps(
         {
             "body": (
-                f'fake: {{"name":"codex-package_SHA256SUMS","digest":"{fake_digest}"}}'
+                f'fake: {{"name":"agent9527-package_SHA256SUMS","digest":"{fake_digest}"}}'
             ),
             "assets": assets,
             "tag_name": f"rust-v{VERSION}",

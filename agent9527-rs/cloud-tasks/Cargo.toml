@@ -1,0 +1,43 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "agent9527-cloud-tasks"
+version.workspace = true
+
+[lib]
+name = "agent9527_cloud_tasks"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+clap = { workspace = true, features = ["derive"] }
+agent9527-http-client = { workspace = true }
+agent9527-cloud-tasks-client = { workspace = true }
+# TODO: agent9527-cloud-tasks-mock-client should be in dev-dependencies.
+agent9527-cloud-tasks-mock-client = { workspace = true }
+agent9527-core = { workspace = true }
+agent9527-git-utils = { workspace = true }
+agent9527-login = { path = "../login" }
+agent9527-model-provider = { workspace = true }
+agent9527-tui = { workspace = true }
+agent9527-utils-cli = { workspace = true }
+crossterm = { workspace = true, features = ["event-stream"] }
+owo-colors = { workspace = true, features = ["supports-colors"] }
+ratatui = { workspace = true }
+reqwest = { workspace = true, features = ["json"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+supports-color = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tokio-stream = { workspace = true }
+tracing = { workspace = true, features = ["log"] }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+unicode-width = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

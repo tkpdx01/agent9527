@@ -1,0 +1,40 @@
+[package]
+name = "agent9527-app-server-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "agent9527_app_server_client"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+agent9527-app-server = { workspace = true }
+agent9527-app-server-protocol = { workspace = true }
+agent9527-arg0 = { workspace = true }
+agent9527-config = { workspace = true }
+agent9527-core = { workspace = true }
+agent9527-exec-server = { workspace = true }
+agent9527-feedback = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-uds = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-rustls-provider = { workspace = true }
+futures = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["sync", "time", "rt"] }
+tokio-tungstenite = { workspace = true }
+toml = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

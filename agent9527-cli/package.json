@@ -1,0 +1,24 @@
+{
+  "name": "@tkpdx01/agent9527",
+  "version": "20260721.2.0",
+  "description": "Agent9527 CLI is a local coding agent for OpenAI-compatible APIs.",
+  "license": "Apache-2.0",
+  "bin": {
+    "agent9527": "bin/agent9527.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkpdx01/agent9527.git",
+    "directory": "agent9527-cli"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "files": [
+    "bin/agent9527.js",
+    "lib",
+    "languages"
+  ],
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
+}

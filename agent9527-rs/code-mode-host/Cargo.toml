@@ -1,0 +1,31 @@
+[package]
+name = "agent9527-code-mode-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "agent9527-code-mode-host"
+path = "src/main.rs"
+
+[lib]
+doctest = false
+name = "agent9527_code_mode_host"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+agent9527-code-mode = { workspace = true }
+agent9527-code-mode-protocol = { workspace = true }
+tokio = { workspace = true, features = ["io-std", "io-util", "macros", "rt", "sync", "time"] }
+tokio-util = { workspace = true, features = ["rt"] }
+
+[dev-dependencies]
+agent9527-protocol = { workspace = true }
+agent9527-utils-cargo-bin = { workspace = true }
+pretty_assertions = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }

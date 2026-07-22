@@ -1,0 +1,142 @@
+[package]
+name = "agent9527-app-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "agent9527-app-server"
+path = "src/main.rs"
+
+[[bin]]
+name = "agent9527-app-server-test-notify-capture"
+path = "src/bin/notify_capture.rs"
+
+[[bin]]
+name = "exec-server"
+path = "src/bin/exec_server.rs"
+
+[lib]
+name = "agent9527_app_server"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+async-channel = { workspace = true }
+base64 = { workspace = true }
+axum = { workspace = true, default-features = false, features = [
+    "http1",
+    "json",
+    "tokio",
+    "ws",
+] }
+agent9527-analytics = { workspace = true }
+agent9527-agent-extension = { workspace = true }
+agent9527-arg0 = { workspace = true }
+agent9527-cloud-config = { workspace = true }
+agent9527-config = { workspace = true }
+agent9527-connectors = { workspace = true }
+agent9527-core = { workspace = true }
+agent9527-core-plugins = { workspace = true }
+agent9527-home = { workspace = true }
+agent9527-exec-server = { workspace = true }
+agent9527-extension-api = { workspace = true }
+agent9527-external-agent-migration = { workspace = true }
+agent9527-features = { workspace = true }
+agent9527-goal-extension = { workspace = true }
+agent9527-guardian = { workspace = true }
+agent9527-git-utils = { workspace = true }
+agent9527-file-watcher = { workspace = true }
+agent9527-hooks = { workspace = true }
+agent9527-http-client = { workspace = true }
+agent9527-otel = { workspace = true }
+agent9527-plugin = { workspace = true }
+agent9527-shell-command = { workspace = true }
+agent9527-skills = { workspace = true }
+agent9527-skills-extension = { workspace = true }
+agent9527-utils-cli = { workspace = true }
+agent9527-utils-pty = { workspace = true }
+agent9527-backend-client = { workspace = true }
+agent9527-file-search = { workspace = true }
+agent9527-chatgpt = { workspace = true }
+agent9527-login = { workspace = true }
+agent9527-image-generation-extension = { workspace = true }
+agent9527-memories-extension = { workspace = true }
+agent9527-web-search-extension = { workspace = true }
+agent9527-memories-write = { workspace = true }
+agent9527-mcp = { workspace = true }
+agent9527-mcp-extension = { workspace = true }
+agent9527-model-provider = { workspace = true }
+agent9527-models-manager = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-app-server-protocol = { workspace = true }
+agent9527-app-server-transport = { workspace = true }
+agent9527-feedback = { workspace = true }
+agent9527-rmcp-client = { workspace = true }
+agent9527-rollout = { workspace = true }
+agent9527-sandboxing = { workspace = true }
+agent9527-state = { workspace = true }
+agent9527-thread-store = { workspace = true }
+agent9527-tools = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-json-to-toml = { workspace = true }
+agent9527-utils-path-uri = { workspace = true }
+chrono = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+futures = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+toml = { workspace = true }
+toml_edit = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+    "signal",
+] }
+tokio-util = { workspace = true }
+tracing = { workspace = true, features = ["log"] }
+tracing-subscriber = { workspace = true, features = ["env-filter", "fmt", "json"] }
+uuid = { workspace = true, features = ["serde", "v7"] }
+
+[target.'cfg(windows)'.dependencies]
+agent9527-windows-sandbox = { workspace = true }
+
+[dev-dependencies]
+app_test_support = { workspace = true }
+axum = { workspace = true, default-features = false, features = [
+    "http1",
+    "json",
+    "tokio",
+] }
+base64 = { workspace = true }
+agent9527-model-provider-info = { workspace = true }
+agent9527-utils-cargo-bin = { workspace = true }
+core_test_support = { workspace = true }
+flate2 = { workspace = true }
+hmac = { workspace = true }
+opentelemetry = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+pretty_assertions = { workspace = true }
+reqwest = { workspace = true, features = ["rustls-tls"] }
+rmcp = { workspace = true, default-features = false, features = [
+    "elicitation",
+    "server",
+    "transport-streamable-http-server",
+] }
+serial_test = { workspace = true }
+sha2 = { workspace = true }
+shlex = { workspace = true }
+tar = { workspace = true }
+tokio-tungstenite = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+url = { workspace = true }
+wiremock = { workspace = true }

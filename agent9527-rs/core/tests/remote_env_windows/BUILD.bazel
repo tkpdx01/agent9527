@@ -1,0 +1,24 @@
+load("//bazel/rules/testing/wine:wine.bzl", "wine_rust_test")
+
+wine_rust_test(
+    name = "smoke-test",
+    timeout = "short",
+    srcs = ["remote_env_windows_test.rs"],
+    crate_name = "remote_env_windows_test",
+    crate_root = "remote_env_windows_test.rs",
+    windows_binaries = {
+        "wine-windows-exec-server": "//agent9527-rs/exec-server/testing:exec-server",
+    },
+    deps = [
+        "//agent9527-rs/core/tests/common",
+        "//agent9527-rs/exec-server",
+        "//agent9527-rs/exec-server/testing:wine-exec-server-test-support",
+        "//agent9527-rs/features",
+        "//agent9527-rs/protocol",
+        "//agent9527-rs/utils/path-uri",
+        "@crates//:anyhow",
+        "@crates//:pretty_assertions",
+        "@crates//:serde_json",
+        "@crates//:tokio",
+    ],
+)

@@ -1,0 +1,170 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "agent9527-core"
+version.workspace = true
+
+[lib]
+name = "agent9527_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "agent9527-write-config-schema"
+path = "src/bin/config_schema.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+arc-swap = { workspace = true }
+async-channel = { workspace = true }
+base64 = { workspace = true }
+bm25 = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+clap = { workspace = true, features = ["derive"] }
+agent9527-analytics = { workspace = true }
+agent9527-agent-graph-store = { workspace = true }
+agent9527-api = { workspace = true }
+agent9527-app-server-protocol = { workspace = true }
+agent9527-apply-patch = { workspace = true }
+agent9527-async-utils = { workspace = true }
+agent9527-code-mode = { workspace = true }
+agent9527-connectors = { workspace = true }
+agent9527-context-fragments = { workspace = true }
+agent9527-config = { workspace = true }
+agent9527-core-plugins = { workspace = true }
+agent9527-core-skills = { workspace = true }
+agent9527-exec-server = { workspace = true }
+agent9527-extension-api = { workspace = true }
+agent9527-extension-items = { workspace = true }
+agent9527-features = { workspace = true }
+agent9527-feedback = { workspace = true }
+agent9527-file-system = { workspace = true }
+agent9527-login = { workspace = true }
+agent9527-memories-read = { workspace = true }
+agent9527-mcp = { workspace = true }
+agent9527-model-provider-info = { workspace = true }
+agent9527-models-manager = { workspace = true }
+agent9527-shell-command = { workspace = true }
+agent9527-execpolicy = { workspace = true }
+agent9527-git-utils = { workspace = true }
+agent9527-hooks = { workspace = true }
+agent9527-http-client = { workspace = true }
+agent9527-install-context = { workspace = true }
+agent9527-network-proxy = { workspace = true }
+agent9527-otel = { workspace = true }
+agent9527-plugin = { workspace = true }
+agent9527-model-provider = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-response-debug-context = { workspace = true }
+agent9527-prompts = { workspace = true }
+agent9527-rollout = { workspace = true }
+agent9527-rollout-trace = { workspace = true }
+agent9527-rmcp-client = { workspace = true }
+agent9527-sandboxing = { workspace = true }
+agent9527-state = { workspace = true }
+agent9527-terminal-detection = { workspace = true }
+agent9527-thread-store = { workspace = true }
+agent9527-tools = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-cache = { workspace = true }
+agent9527-utils-image = { workspace = true }
+agent9527-utils-home-dir = { workspace = true }
+agent9527-utils-output-truncation = { workspace = true }
+agent9527-utils-path = { workspace = true }
+agent9527-utils-path-uri = { workspace = true }
+agent9527-utils-plugins = { workspace = true }
+agent9527-utils-pty = { workspace = true }
+agent9527-utils-string = { workspace = true }
+agent9527-utils-stream-parser = { workspace = true }
+agent9527-windows-sandbox = { package = "agent9527-windows-sandbox", path = "../windows-sandbox-rs" }
+csv = { workspace = true }
+dirs = { workspace = true }
+dunce = { workspace = true }
+eventsource-stream = { workspace = true }
+futures = { workspace = true }
+http = { workspace = true }
+iana-time-zone = { workspace = true }
+image = { workspace = true, features = ["jpeg", "png", "webp"] }
+indexmap = { workspace = true }
+libc = { workspace = true }
+once_cell = { workspace = true }
+rand = { workspace = true }
+regex-lite = { workspace = true }
+reqwest = { workspace = true, features = ["json", "stream"] }
+rmcp = { workspace = true, default-features = false, features = [
+    "base64",
+    "macros",
+    "schemars",
+    "server",
+] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha1 = { workspace = true }
+shlex = { workspace = true }
+similar = { workspace = true }
+tempfile = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+    "signal",
+] }
+tokio-util = { workspace = true, features = ["rt"] }
+tokio-tungstenite = { workspace = true }
+toml = { workspace = true }
+toml_edit = { workspace = true }
+tracing = { workspace = true, features = ["log"] }
+url = { workspace = true }
+uuid = { workspace = true, features = ["serde", "v4", "v5", "v7"] }
+which = { workspace = true }
+whoami = { workspace = true }
+
+# Build OpenSSL from source for musl builds.
+[target.x86_64-unknown-linux-musl.dependencies]
+openssl-sys = { workspace = true, features = ["vendored"] }
+
+# Build OpenSSL from source for musl builds.
+[target.aarch64-unknown-linux-musl.dependencies]
+openssl-sys = { workspace = true, features = ["vendored"] }
+
+[target.'cfg(unix)'.dependencies]
+agent9527-shell-escalation = { workspace = true }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+assert_matches = { workspace = true }
+agent9527-image-generation-extension = { workspace = true }
+agent9527-home = { workspace = true }
+agent9527-otel = { workspace = true }
+agent9527-test-binary-support = { workspace = true }
+agent9527-utils-cargo-bin = { workspace = true }
+agent9527-web-search-extension = { workspace = true }
+core_test_support = { workspace = true }
+ctor = { workspace = true }
+insta = { workspace = true }
+maplit = { workspace = true }
+opentelemetry = { workspace = true }
+predicates = { workspace = true }
+pretty_assertions = { workspace = true }
+test-case = "3.3.1"
+opentelemetry_sdk = { workspace = true, features = [
+    "experimental_metrics_custom_reader",
+    "metrics",
+] }
+serial_test = { workspace = true }
+tempfile = { workspace = true }
+test-log = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-test = { workspace = true, features = ["no-env-filter"] }
+walkdir = { workspace = true }
+wiremock = { workspace = true }
+zstd = { workspace = true }
+
+[package.metadata.cargo-shear]
+ignored = ["openssl-sys"]
+ignored-paths = ["tests/remote_env_windows/*.rs"]

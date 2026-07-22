@@ -1,0 +1,25 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "agent9527-prompts"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "agent9527_prompts"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+agent9527-context-fragments = { workspace = true }
+agent9527-git-utils = { workspace = true }
+agent9527-execpolicy = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-template = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

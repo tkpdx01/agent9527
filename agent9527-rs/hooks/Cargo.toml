@@ -1,0 +1,35 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "agent9527-hooks"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "agent9527_hooks"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+agent9527-config = { workspace = true }
+agent9527-plugin = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-output-truncation = { workspace = true }
+futures = { workspace = true, features = ["alloc"] }
+regex = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["fs", "io-util", "process", "time"] }
+tracing = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "time"] }
