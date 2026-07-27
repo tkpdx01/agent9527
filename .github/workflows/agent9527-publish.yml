@@ -287,10 +287,21 @@ jobs:
           VERSION: ${{ steps.metadata.outputs.version }}
         run: |
           set -euo pipefail
+          if ! command -v aarch64-linux-gnu-strip >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y binutils-aarch64-linux-gnu
+          fi
+
           for npm_arch in x64 arm64; do
             case "$npm_arch" in
-              x64) target="x86_64-unknown-linux-musl" ;;
-              arm64) target="aarch64-unknown-linux-musl" ;;
+              x64)
+                target="x86_64-unknown-linux-musl"
+                strip_bin="strip"
+                ;;
+              arm64)
+                target="aarch64-unknown-linux-musl"
+                strip_bin="aarch64-linux-gnu-strip"
+                ;;
               *) echo "Unsupported npm architecture: ${npm_arch}" >&2; exit 1 ;;
             esac
 
@@ -309,7 +320,7 @@ jobs:
                 echo "Missing packaged binary: ${binary_path}" >&2
                 exit 1
               fi
-              strip --strip-debug --strip-unneeded "$binary_path"
+              "$strip_bin" --strip-debug --strip-unneeded "$binary_path"
             done
 
             tar -C "$staging_root" -czf "${tarball}.new" package
