@@ -761,27 +761,6 @@ pub async fn fetch_remote_marketplaces(
         match source {
             RemoteMarketplaceSource::Global => {
                 let scope = RemotePluginScope::Global;
-                if let Some(codex_home) = global_catalog_cache_path
-                    && let Some(directory_plugins) =
-                        catalog_cache::load_cached_global_directory_plugins(
-                            codex_home,
-                            config,
-                            auth,
-                        )
-                {
-                    let installed_plugins =
-                        fetch_installed_plugins_for_scope(config, auth, scope).await?;
-                    if let Some(marketplace) = build_remote_marketplace(
-                        scope.marketplace_name(),
-                        scope.marketplace_display_name(),
-                        directory_plugins,
-                        installed_plugins,
-                        /*include_installed_only*/ true,
-                    )? {
-                        marketplaces.push(marketplace);
-                    }
-                    continue;
-                }
                 let (directory_plugins, installed_plugins) = tokio::try_join!(
                     fetch_directory_plugins_for_scope_with_cache(
                         catalog_cache_root,
@@ -1570,12 +1549,7 @@ pub async fn uninstall_remote_plugin(
 
     let legacy_plugin_id = response.id;
     tokio::task::spawn_blocking(move || {
-        remove_remote_plugin_cache(
-            codex_home,
-            marketplace_name,
-            plugin_name,
-            legacy_plugin_id,
-        )
+        remove_remote_plugin_cache(codex_home, marketplace_name, plugin_name, legacy_plugin_id)
     })
     .await
     .map_err(|err| {
@@ -2123,9 +2097,7 @@ fn remote_plugin_skill_detail_url(
     Ok(url.to_string())
 }
 
-fn ensure_chatgpt_auth(
-    auth: Option<&CodexAuth>,
-) -> Result<&CodexAuth, RemotePluginCatalogError> {
+fn ensure_chatgpt_auth(auth: Option<&CodexAuth>) -> Result<&CodexAuth, RemotePluginCatalogError> {
     let Some(auth) = auth else {
         return Err(RemotePluginCatalogError::AuthRequired);
     };

@@ -1,9 +1,9 @@
+use anyhow::Context;
 use codex_app_server_protocol::PluginAvailability;
 use codex_app_server_protocol::PluginInstallPolicy;
 use codex_core_skills::config_rules::skill_config_rules_from_stack;
 use codex_login::CodexAuth;
 use codex_plugin::PluginId;
-use anyhow::Context;
 use std::collections::HashSet;
 use tracing::warn;
 
@@ -76,8 +76,8 @@ impl PluginsManager {
             return Ok(Vec::new());
         }
 
-        let use_remote_global_catalog = input.plugins.remote_plugin_enabled
-            && auth.is_some_and(CodexAuth::uses_codex_backend);
+        let use_remote_global_catalog =
+            input.plugins.remote_plugin_enabled && auth.is_some_and(CodexAuth::uses_codex_backend);
         let marketplaces = self
             .list_marketplaces_for_config(
                 &input.plugins,

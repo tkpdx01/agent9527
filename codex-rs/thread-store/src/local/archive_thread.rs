@@ -1,6 +1,3 @@
-use codex_rollout::find_thread_path_by_id_str;
-use chrono::Utc;
-
 use super::LocalThreadStore;
 use super::helpers::matching_rollout_file_name;
 use super::helpers::scoped_rollout_path;
@@ -82,10 +79,7 @@ pub(super) async fn archive_thread(
     })?;
 
     let canonical_rollout_path = scoped_rollout_path(
-        store
-            .config
-            .codex_home
-            .join(codex_rollout::SESSIONS_SUBDIR),
+        store.config.codex_home.join(codex_rollout::SESSIONS_SUBDIR),
         rollout_path.as_path(),
         "sessions",
     )?;

@@ -1,6 +1,19 @@
+use base64::Engine;
+use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::FunctionCallOutputContentItem;
 use codex_protocol::models::ResponseItem;
+use codex_utils_cache::BlockingLruCache;
+use codex_utils_cache::sha1_digest;
+use codex_utils_output_truncation::approx_token_count;
+use std::io::Cursor;
+use std::num::NonZeroUsize;
+use std::sync::LazyLock;
+use symphonia::core::formats::FormatOptions;
+use symphonia::core::formats::TrackType;
+use symphonia::core::formats::probe::Hint;
+use symphonia::core::io::MediaSourceStream;
+use symphonia::core::meta::MetadataOptions;
 use tracing::warn;
 
 const AUDIO_PROCESSING_ERROR_PLACEHOLDER: &str =

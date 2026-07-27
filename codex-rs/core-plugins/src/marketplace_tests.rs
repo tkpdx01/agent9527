@@ -2242,10 +2242,7 @@ fn find_marketplace_plugin_allows_missing_products_field() {
     )
     .unwrap();
 
-    assert_eq!(
-        resolved.plugin_id.as_key(),
-        "default-plugin@codex-curated"
-    );
+    assert_eq!(resolved.plugin_id.as_key(), "default-plugin@codex-curated");
 }
 
 #[test]

@@ -16,7 +16,6 @@ use codex_connectors::connector_runtime_context_key;
 use codex_exec_server::EnvironmentManager;
 use codex_exec_server::ExecServerRuntimePaths;
 use codex_tools::DiscoverableTool;
-use async_channel::unbounded;
 use tokio_util::sync::CancellationToken;
 use tracing::instrument;
 use tracing::warn;
@@ -29,8 +28,8 @@ use codex_config::types::ApprovalsReviewer;
 use codex_config::types::ToolSuggestDiscoverableType;
 use codex_core_plugins::PluginsManager;
 use codex_features::Feature;
-use codex_login::CodexAuth;
 use codex_login::AuthManager;
+use codex_login::CodexAuth;
 use codex_mcp::CODEX_APPS_MCP_SERVER_NAME;
 use codex_mcp::MCP_TOOL_CODEX_APPS_META_KEY;
 use codex_mcp::McpRuntime;
@@ -121,10 +120,10 @@ pub async fn list_cached_accessible_connectors_from_mcp_tools(
     let auth_manager =
         AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false).await;
     let auth = auth_manager.auth().await;
-    if !config.features.apps_enabled_for_auth(
-        auth.as_ref()
-            .is_some_and(CodexAuth::uses_codex_backend),
-    ) {
+    if !config
+        .features
+        .apps_enabled_for_auth(auth.as_ref().is_some_and(CodexAuth::uses_codex_backend))
+    {
         return Some(Vec::new());
     }
     let cache_key = accessible_connectors_cache_key(config, auth.as_ref());
@@ -206,10 +205,10 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
     let auth_manager =
         AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false).await;
     let auth = auth_manager.auth().await;
-    if !config.features.apps_enabled_for_auth(
-        auth.as_ref()
-            .is_some_and(CodexAuth::uses_codex_backend),
-    ) {
+    if !config
+        .features
+        .apps_enabled_for_auth(auth.as_ref().is_some_and(CodexAuth::uses_codex_backend))
+    {
         return Ok(AccessibleConnectorsStatus {
             connectors: Vec::new(),
             codex_apps_ready: true,

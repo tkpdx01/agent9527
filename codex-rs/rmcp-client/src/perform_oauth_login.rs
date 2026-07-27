@@ -3,14 +3,16 @@ use std::string::String;
 use std::sync::Arc;
 use std::time::Duration;
 
-use codex_exec_server::HttpClient;
-use codex_exec_server::ReqwestHttpClient;
 use anyhow::Context;
 use anyhow::Result;
 use anyhow::anyhow;
 use anyhow::bail;
 use base64::Engine;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use codex_exec_server::HttpClient;
+use codex_exec_server::RouteAwareHttpClient;
+use codex_http_client::HttpClientFactory;
+use codex_http_client::OutboundProxyPolicy;
 use reqwest::Url;
 use rmcp::transport::AuthorizationManager;
 use rmcp::transport::AuthorizationSession;
@@ -715,10 +717,12 @@ fn append_query_param(url: &str, key: &str, value: Option<&str>) -> String {
 mod tests {
     use std::sync::Arc;
 
-    use codex_exec_server::ReqwestHttpClient;
     use axum::Json;
     use axum::Router;
     use axum::routing::get;
+    use codex_exec_server::RouteAwareHttpClient;
+    use codex_http_client::HttpClientFactory;
+    use codex_http_client::OutboundProxyPolicy;
     use pretty_assertions::assert_eq;
     use reqwest::Url;
     use reqwest::header::HeaderMap;

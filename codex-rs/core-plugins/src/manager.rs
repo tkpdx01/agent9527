@@ -74,6 +74,10 @@ use codex_core_skills::PluginSkillSnapshots;
 use codex_core_skills::config_rules::skill_config_rules_from_stack;
 use codex_core_skills::loader::MAX_CONCURRENT_ROOT_SCANS;
 use codex_hooks::plugin_hook_declarations;
+use codex_http_client::HttpClientFactory;
+use codex_login::AuthManager;
+use codex_login::CodexAuth;
+use codex_model_provider::AMAZON_BEDROCK_PROVIDER_ID;
 use codex_plugin::AppConnectorId;
 use codex_plugin::PluginCapabilitySummary;
 use codex_plugin::PluginId;
@@ -482,11 +486,7 @@ impl PluginLoadCacheKey {
 
 impl PluginsManager {
     pub fn new(codex_home: PathBuf) -> Self {
-        Self::new_with_options(
-            codex_home,
-            Some(Product::Codex),
-            /*auth_mode*/ None,
-        )
+        Self::new_with_options(codex_home, Some(Product::Codex), /*auth_mode*/ None)
     }
 
     pub fn new_with_options(
@@ -559,10 +559,7 @@ impl PluginsManager {
     }
 
     fn remote_global_catalog_active(&self, config: &PluginsConfigInput) -> bool {
-        config.remote_plugin_enabled
-            && self
-                .auth_mode()
-                .is_some_and(AuthMode::uses_codex_backend)
+        config.remote_plugin_enabled && self.auth_mode().is_some_and(AuthMode::uses_codex_backend)
     }
 
     pub fn set_analytics_events_client(&self, analytics_events_client: AnalyticsEventsClient) {
@@ -1543,8 +1540,8 @@ impl PluginsManager {
         let auth_policy = resolved.policy.authentication;
         let plugin_version =
             if is_openai_curated_marketplace_name(&resolved.plugin_id.marketplace_name) {
-                let curated_plugin_version =
-                    read_curated_plugins_sha(self.codex_home.as_path()).ok_or_else(|| {
+                let curated_plugin_version = read_curated_plugins_sha(self.codex_home.as_path())
+                    .ok_or_else(|| {
                         PluginStoreError::Invalid(
                             "local curated marketplace sha is not available".to_string(),
                         )
@@ -1946,19 +1943,18 @@ impl PluginsManager {
                 "path does not exist or is not a directory".to_string(),
             ));
         }
-        let manifest = if codex_utils_plugins::find_plugin_manifest_path(source_path.as_path())
-            .is_some()
-        {
-            load_plugin_manifest(source_path.as_path())
-        } else {
-            plugin
-                .manifest_fallback
-                .as_ref()
-                .and_then(|fallback| fallback.parse_for_plugin_root(source_path.as_path()))
-        }
-        .ok_or_else(|| {
-            MarketplaceError::InvalidPlugin("missing or invalid plugin.json".to_string())
-        })?;
+        let manifest =
+            if codex_utils_plugins::find_plugin_manifest_path(source_path.as_path()).is_some() {
+                load_plugin_manifest(source_path.as_path())
+            } else {
+                plugin
+                    .manifest_fallback
+                    .as_ref()
+                    .and_then(|fallback| fallback.parse_for_plugin_root(source_path.as_path()))
+            }
+            .ok_or_else(|| {
+                MarketplaceError::InvalidPlugin("missing or invalid plugin.json".to_string())
+            })?;
         let description = manifest.description.clone();
         let marketplace_category = plugin
             .interface
@@ -2431,13 +2427,6 @@ impl PluginsManager {
             .collect::<Vec<_>>();
         roots.sort_unstable();
         roots.dedup();
-        let mut configured_plugin_keys = configured_plugins_from_stack(
-            &config.config_layer_stack,
-            self.codex_home.as_path(),
-        )
-        .into_keys()
-        .collect::<Vec<_>>();
-        configured_plugin_keys.sort_unstable();
         if roots.is_empty() || configured_plugin_keys.is_empty() {
             return;
         }
@@ -2540,9 +2529,7 @@ impl PluginsManager {
                 match sync_openai_plugins_repo(codex_home.as_path(), http_client_factory) {
                     Ok(curated_plugin_version) => {
                         let configured_curated_plugin_ids =
-                            configured_curated_plugin_ids_from_codex_home(
-                                codex_home.as_path(),
-                            );
+                            configured_curated_plugin_ids_from_codex_home(codex_home.as_path());
                         match refresh_curated_plugin_cache(
                             codex_home.as_path(),
                             &curated_plugin_version,
@@ -2781,10 +2768,8 @@ impl PluginsManager {
         &self,
         config: &PluginsConfigInput,
     ) -> (HashSet<String>, HashSet<String>) {
-        let configured_plugins = configured_plugins_from_stack(
-            &config.config_layer_stack,
-            self.codex_home.as_path(),
-        );
+        let configured_plugins =
+            configured_plugins_from_stack(&config.config_layer_stack, self.codex_home.as_path());
         let installed_plugins = configured_plugins
             .keys()
             .filter(|plugin_key| {

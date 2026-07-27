@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use chrono::DateTime;
+use chrono::Utc;
 use codex_arg0::Arg0DispatchPaths;
 use codex_core::ThreadManager;
 use codex_core::config::ConfigOverrides;
@@ -30,7 +32,6 @@ use codex_thread_store::ThreadMetadataPatch;
 use codex_thread_store::ThreadPersistenceMetadata;
 use codex_thread_store::ThreadStore;
 use codex_thread_store::UpdateThreadMetadataParams;
-use chrono::Utc;
 use futures::StreamExt;
 use tokio::sync::Semaphore;
 
@@ -170,8 +171,7 @@ impl ExternalAgentSessionImporter {
             .into_iter()
             .map(|completed_import| completed_import.import)
             .collect();
-        if let Err(err) = record_completed_session_imports(&self.codex_home, completed_imports)
-        {
+        if let Err(err) = record_completed_session_imports(&self.codex_home, completed_imports) {
             record_import_error(
                 &mut item_result,
                 "session_ledger_update",
@@ -238,11 +238,7 @@ impl ExternalAgentSessionImporter {
     ) -> Result<Option<PendingSessionImport>, SessionImportStepFailure> {
         let codex_home = self.codex_home.clone();
         tokio::task::spawn_blocking(move || {
-            prepare_validated_session_import_with_metadata_mode(
-                &codex_home,
-                session,
-                metadata_mode,
-            )
+            prepare_validated_session_import_with_metadata_mode(&codex_home, session, metadata_mode)
         })
         .await
         .map_err(|err| {
@@ -275,10 +271,7 @@ impl ExternalAgentSessionImporter {
                 /*request_overrides*/ None,
                 ConfigOverrides {
                     cwd: Some(cwd),
-                    codex_linux_sandbox_exe: self
-                        .arg0_paths
-                        .codex_linux_sandbox_exe
-                        .clone(),
+                    codex_linux_sandbox_exe: self.arg0_paths.codex_linux_sandbox_exe.clone(),
                     main_execve_wrapper_exe: self.arg0_paths.main_execve_wrapper_exe.clone(),
                     ..Default::default()
                 },

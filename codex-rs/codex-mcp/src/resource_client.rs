@@ -1,10 +1,10 @@
 use std::sync::Arc;
 use std::sync::Weak;
 
-use codex_protocol::mcp::Resource;
-use codex_protocol::mcp::ResourceContent;
 use anyhow::Context;
 use anyhow::Result;
+use codex_protocol::mcp::Resource;
+use codex_protocol::mcp::ResourceContent;
 use rmcp::model::PaginatedRequestParams;
 use rmcp::model::ReadResourceRequestParams;
 

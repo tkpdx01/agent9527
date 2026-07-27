@@ -13,8 +13,6 @@ use codex_mcp::effective_mcp_servers;
 use codex_mcp::host_owned_codex_apps_enabled;
 use codex_mcp::tool_is_model_visible;
 use codex_protocol::models::PermissionProfile;
-use async_channel::unbounded;
-
 #[cfg(test)]
 #[path = "installed_tests.rs"]
 mod tests;

@@ -20,6 +20,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
+use codex_config::ConfigLayerStack;
 use codex_config::Constrained;
 use codex_config::McpServerAuth;
 use codex_config::McpServerConfig;
@@ -40,6 +41,7 @@ use codex_protocol::mcp::Tool;
 use codex_protocol::models::PermissionProfile;
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::McpAuthStatus;
+use codex_utils_path_uri::PathUri;
 use rmcp::model::ElicitationCapability;
 use rmcp::model::ReadResourceRequestParams;
 use rmcp::model::ReadResourceResult;
@@ -461,9 +463,7 @@ pub(crate) fn sanitize_responses_api_tool_name(name: &str) -> String {
 
 fn codex_apps_mcp_bearer_token_env_var() -> Option<String> {
     match env::var(CODEX_CONNECTORS_TOKEN_ENV_VAR) {
-        Ok(value) if !value.trim().is_empty() => {
-            Some(CODEX_CONNECTORS_TOKEN_ENV_VAR.to_string())
-        }
+        Ok(value) if !value.trim().is_empty() => Some(CODEX_CONNECTORS_TOKEN_ENV_VAR.to_string()),
         Ok(_) => None,
         Err(env::VarError::NotPresent) => None,
         Err(env::VarError::NotUnicode(_)) => Some(CODEX_CONNECTORS_TOKEN_ENV_VAR.to_string()),

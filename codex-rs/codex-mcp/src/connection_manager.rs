@@ -30,6 +30,8 @@ use crate::elicitation::ElicitationRequestManager;
 use crate::elicitation::ElicitationRequestRouter;
 use crate::mcp::CODEX_APPS_MCP_SERVER_NAME;
 use crate::mcp::ToolPluginProvenance;
+use crate::rmcp_client::AsyncManagedClient;
+use crate::rmcp_client::DEFAULT_TOOL_TIMEOUT;
 use crate::rmcp_client::ManagedClient;
 use crate::rmcp_client::StartupOutcomeError;
 use crate::rmcp_client::prepare_codex_apps_tools_for_model;
@@ -41,6 +43,10 @@ use crate::server::McpServerMetadata;
 use crate::tools::ToolFilter;
 use crate::tools::ToolInfo;
 use crate::tools::filter_tools;
+use anyhow::Context;
+use anyhow::Result;
+use anyhow::anyhow;
+use codex_config::McpServerTransportConfig;
 use codex_protocol::mcp::CallToolResult;
 use codex_protocol::mcp::McpServerInfo;
 use codex_protocol::models::PermissionProfile;
@@ -52,6 +58,8 @@ use codex_protocol::protocol::McpStartupFailure;
 use codex_protocol::protocol::McpStartupStatus;
 use codex_protocol::protocol::McpStartupUpdateEvent;
 use codex_rmcp_client::determine_streamable_http_auth_status_from_credentials;
+use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 use tokio::task::JoinSet;
 use tracing::warn;
 
@@ -217,10 +225,9 @@ impl McpConnectionSet {
             .filter(|auth| auth.uses_codex_backend())
             .map(codex_model_provider::auth_provider_from_auth);
         let codex_apps_auth_provider = codex_apps_auth_manager.and_then(|auth_manager| {
-            auth.filter(|auth| auth.uses_codex_backend())
-                .map(|auth| {
-                    codex_model_provider::auth_provider_from_auth_manager(auth_manager, auth)
-                })
+            auth.filter(|auth| auth.uses_codex_backend()).map(|auth| {
+                codex_model_provider::auth_provider_from_auth_manager(auth_manager, auth)
+            })
         });
         for (server_name, server) in mcp_servers
             .into_iter()
@@ -249,10 +256,8 @@ impl McpConnectionSet {
             let shares_codex_apps_tools_cache =
                 should_share_codex_apps_tools_cache(&server_name, uses_env_bearer_token);
             let codex_apps_tools_cache_context = shares_codex_apps_tools_cache.then(|| {
-                codex_apps_tools_cache.context(
-                    codex_home.clone(),
-                    codex_apps_tools_cache_key.clone(),
-                )
+                codex_apps_tools_cache
+                    .context(codex_home.clone(), codex_apps_tools_cache_key.clone())
             });
             // The reserved Codex Apps registration follows the shared
             // AuthManager across refreshes. In the hosted-plugin path, this
@@ -568,57 +573,6 @@ impl McpConnectionSet {
             .is_selected_plugin_mcp_server(server_name)
     }
 
-    pub fn tool_approval_mode(
-        &self,
-        server_name: &str,
-        tool_name: &str,
-    ) -> codex_config::AppToolApproval {
-        self.server_metadata
-            .get(server_name)
-            .map(|metadata| metadata.tool_approval_mode(tool_name))
-            .unwrap_or_default()
-    }
-
-    pub fn is_host_owned_codex_apps_server(&self, server_name: &str) -> bool {
-        server_name == CODEX_APPS_MCP_SERVER_NAME
-            && self.server_metadata.contains_key(server_name)
-    }
-
-    pub fn set_approval_policy(&self, approval_policy: &Constrained<AskForApproval>) {
-        if let Ok(mut policy) = self.elicitation_requests.approval_policy.lock() {
-            *policy = approval_policy.value();
-        }
-    }
-
-    pub fn set_permission_profile(&self, permission_profile: PermissionProfile) {
-        if let Ok(mut profile) = self.elicitation_requests.permission_profile.lock() {
-            *profile = permission_profile;
-        }
-    }
-
-    pub fn elicitations_auto_deny(&self) -> bool {
-        self.elicitation_requests.auto_deny()
-    }
-
-    pub fn set_elicitations_auto_deny(&self, auto_deny: bool) {
-        self.elicitation_requests.set_auto_deny(auto_deny);
-    }
-
-    pub fn elicitation_router(&self) -> ElicitationRequestRouter {
-        self.elicitation_requests.router()
-    }
-
-    pub async fn resolve_elicitation(
-        &self,
-        server_name: String,
-        id: RequestId,
-        response: ElicitationResponse,
-    ) -> Result<()> {
-        self.elicitation_requests
-            .resolve(server_name, id, response)
-            .await
-    }
-
     pub async fn wait_for_server_ready(&self, server_name: &str, timeout: Duration) -> bool {
         let Some(view) = self.servers.get(server_name) else {
             return false;
@@ -628,276 +582,6 @@ impl McpConnectionSet {
             Ok(Ok(_)) => true,
             Ok(Err(_)) | Err(_) => false,
         }
-    }
-
-    /// Returns all tools with model-visible names normalized.
-    #[instrument(level = "trace", skip_all, fields(mcp_server_count = self.clients.len()))]
-    pub async fn list_all_tools(&self) -> Vec<ToolInfo> {
-        let mut tools = Vec::new();
-        let mut available_server_count = 0;
-        let mut unavailable_server_count = 0;
-        for (server_name, managed_client) in &self.clients {
-            managed_client.reconnect_failed_startup().await;
-            let has_cached_tools = managed_client.has_cached_tools();
-            let startup_complete = managed_client
-                .startup_complete
-                .load(std::sync::atomic::Ordering::Acquire);
-            let Some(server_tools) = managed_client
-                .listed_tools()
-                .instrument(trace_span!(
-                    "list_tools_for_server",
-                    server_name = %server_name,
-                    has_cached_tools,
-                    startup_complete
-                ))
-                .await
-            else {
-                unavailable_server_count += 1;
-                trace!(
-                    server_name = %server_name,
-                    has_cached_tools,
-                    startup_complete,
-                    "MCP server tools unavailable while building tool list"
-                );
-                continue;
-            };
-            available_server_count += 1;
-            tools.extend(
-                server_tools
-                    .into_iter()
-                    .map(|tool| self.with_server_metadata(tool)),
-            );
-        }
-        let tools = normalize_tools_for_model_with_prefix(tools, self.prefix_mcp_tool_names);
-        trace!(
-            available_server_count,
-            unavailable_server_count,
-            tool_count = tools.len(),
-            "built MCP tool list"
-        );
-        tools
-    }
-
-    /// Returns one tool from the current live connection.
-    pub async fn tool_info(&self, server: &str, tool: &str) -> Option<ToolInfo> {
-        let client = self.clients.get(server)?;
-        let managed_client = client.client().await.ok()?;
-        let tool = client
-            .prepare_tools(managed_client.listed_tools())
-            .into_iter()
-            .find(|tool_info| tool_info.tool.name == tool)?;
-        Some(self.with_server_metadata(tool))
-    }
-
-    /// Force-refresh codex apps tools by bypassing the in-process cache.
-    ///
-    /// On success, the refreshed tools replace shared cache contents when the
-    /// cache is enabled and the latest filtered tools are returned directly to
-    /// the caller. On failure, existing shared cache contents remain unchanged.
-    pub async fn hard_refresh_codex_apps_tools_cache(&self) -> Result<Vec<ToolInfo>> {
-        let refresh_start = Instant::now();
-        let managed_client = self
-            .clients
-            .get(CODEX_APPS_MCP_SERVER_NAME)
-            .ok_or_else(|| anyhow!("unknown MCP server '{CODEX_APPS_MCP_SERVER_NAME}'"))?
-            .client()
-            .await
-            .context("failed to get client")?;
-
-        let list_start = Instant::now();
-        let fetch_ticket = managed_client
-            .codex_apps_tools_cache_context
-            .as_ref()
-            .map(|cache_context| {
-                cache_context.begin_fetch(ConnectorRuntimeFetchSource::HardRefresh)
-            });
-        let tools = list_tools_for_client_uncached(
-            CODEX_APPS_MCP_SERVER_NAME,
-            /*is_codex_apps_mcp_server*/ true,
-            /*codex_apps_refresh_trigger*/ "explicit",
-            &managed_client.client,
-            managed_client.tool_timeout,
-            managed_client.server_instructions.as_deref(),
-        )
-        .await
-        .with_context(|| {
-            format!("failed to refresh tools for MCP server '{CODEX_APPS_MCP_SERVER_NAME}'")
-        })?;
-
-        let tools =
-            match (
-                managed_client.codex_apps_tools_cache_context.as_ref(),
-                fetch_ticket,
-            ) {
-                (Some(cache_context), Some(fetch_ticket)) => cache_context
-                    .publish_if_newest_accepted(fetch_ticket, &managed_client.server_info, tools),
-                (None, None) => tools,
-                _ => unreachable!("Codex Apps fetch ticket requires cache context"),
-            };
-        emit_duration(
-            MCP_TOOLS_LIST_DURATION_METRIC,
-            list_start.elapsed(),
-            &[("cache", "miss")],
-        );
-        let tools = filter_tools(tools, &managed_client.tool_filter)
-            .into_iter()
-            .map(|mut tool| {
-                prepare_openai_file_params_for_model(&mut tool);
-                self.with_server_metadata(tool)
-            });
-        let tools = normalize_tools_for_model_with_prefix(tools, self.prefix_mcp_tool_names);
-        emit_duration(
-            CODEX_APPS_REFRESH_DURATION_METRIC,
-            refresh_start.elapsed(),
-            &[("path", "legacy"), ("trigger", "explicit")],
-        );
-        Ok(tools)
-    }
-
-    /// Returns resources from servers selected by `include_server`. Each key
-    /// is the server name and the value is a vector of resources.
-    pub async fn list_all_resources(
-        &self,
-        include_server: impl Fn(&str) -> bool,
-    ) -> HashMap<String, Vec<Resource>> {
-        let mut join_set = JoinSet::new();
-
-        let clients_snapshot = &self.clients;
-
-        for (server_name, async_managed_client) in clients_snapshot
-            .iter()
-            .filter(|(server_name, _)| include_server(server_name))
-        {
-            let server_name = server_name.clone();
-            let Ok(managed_client) = async_managed_client.client().await else {
-                continue;
-            };
-            let timeout = managed_client.tool_timeout;
-            let client = managed_client.client.clone();
-
-            join_set.spawn(async move {
-                let mut collected: Vec<Resource> = Vec::new();
-                let mut cursor: Option<String> = None;
-
-                loop {
-                    let params = cursor.as_ref().map(|next| {
-                        PaginatedRequestParams::default().with_cursor(Some(next.clone()))
-                    });
-                    let response = match client.list_resources(params, timeout).await {
-                        Ok(result) => result,
-                        Err(err) => return (server_name, Err(err)),
-                    };
-
-                    collected.extend(response.resources);
-
-                    match response.next_cursor {
-                        Some(next) => {
-                            if cursor.as_ref() == Some(&next) {
-                                return (
-                                    server_name,
-                                    Err(anyhow!("resources/list returned duplicate cursor")),
-                                );
-                            }
-                            cursor = Some(next);
-                        }
-                        None => return (server_name, Ok(collected)),
-                    }
-                }
-            });
-        }
-
-        let mut aggregated: HashMap<String, Vec<Resource>> = HashMap::new();
-
-        while let Some(join_res) = join_set.join_next().await {
-            match join_res {
-                Ok((server_name, Ok(resources))) => {
-                    aggregated.insert(server_name, resources);
-                }
-                Ok((server_name, Err(err))) => {
-                    warn!("Failed to list resources for MCP server '{server_name}': {err:#}");
-                }
-                Err(err) => {
-                    warn!("Task panic when listing resources for MCP server: {err:#}");
-                }
-            }
-        }
-
-        aggregated
-    }
-
-    /// Returns resource templates from servers selected by `include_server`.
-    /// Each key is the server name and the value is a vector of templates.
-    pub async fn list_all_resource_templates(
-        &self,
-        include_server: impl Fn(&str) -> bool,
-    ) -> HashMap<String, Vec<ResourceTemplate>> {
-        let mut join_set = JoinSet::new();
-
-        let clients_snapshot = &self.clients;
-
-        for (server_name, async_managed_client) in clients_snapshot
-            .iter()
-            .filter(|(server_name, _)| include_server(server_name))
-        {
-            let server_name_cloned = server_name.clone();
-            let Ok(managed_client) = async_managed_client.client().await else {
-                continue;
-            };
-            let client = managed_client.client.clone();
-            let timeout = managed_client.tool_timeout;
-
-            join_set.spawn(async move {
-                let mut collected: Vec<ResourceTemplate> = Vec::new();
-                let mut cursor: Option<String> = None;
-
-                loop {
-                    let params = cursor.as_ref().map(|next| {
-                        PaginatedRequestParams::default().with_cursor(Some(next.clone()))
-                    });
-                    let response = match client.list_resource_templates(params, timeout).await {
-                        Ok(result) => result,
-                        Err(err) => return (server_name_cloned, Err(err)),
-                    };
-
-                    collected.extend(response.resource_templates);
-
-                    match response.next_cursor {
-                        Some(next) => {
-                            if cursor.as_ref() == Some(&next) {
-                                return (
-                                    server_name_cloned,
-                                    Err(anyhow!(
-                                        "resources/templates/list returned duplicate cursor"
-                                    )),
-                                );
-                            }
-                            cursor = Some(next);
-                        }
-                        None => return (server_name_cloned, Ok(collected)),
-                    }
-                }
-            });
-        }
-
-        let mut aggregated: HashMap<String, Vec<ResourceTemplate>> = HashMap::new();
-
-        while let Some(join_res) = join_set.join_next().await {
-            match join_res {
-                Ok((server_name, Ok(templates))) => {
-                    aggregated.insert(server_name, templates);
-                }
-                Ok((server_name, Err(err))) => {
-                    warn!(
-                        "Failed to list resource templates for MCP server '{server_name}': {err:#}"
-                    );
-                }
-                Err(err) => {
-                    warn!("Task panic when listing resource templates for MCP server: {err:#}");
-                }
-            }
-        }
-
-        aggregated
     }
 
     /// Invoke the tool indicated by the (server, tool) pair.

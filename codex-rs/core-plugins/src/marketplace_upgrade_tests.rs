@@ -49,10 +49,9 @@ fn one_upgrade_failure_does_not_block_another_marketplace() {
     let good_url = url::Url::from_directory_path(remote_repo.path())
         .expect("remote repository URL")
         .to_string();
-    let missing_url =
-        url::Url::from_directory_path(codex_home.path().join("missing-repository"))
-            .expect("missing repository URL")
-            .to_string();
+    let missing_url = url::Url::from_directory_path(codex_home.path().join("missing-repository"))
+        .expect("missing repository URL")
+        .to_string();
     let config = format!(
         r#"
 [marketplaces.bad]
@@ -176,8 +175,8 @@ fn up_to_date_fast_path_validates_marketplace_name() {
 }
 
 fn config_layer_stack(codex_home: &Path, config: &str) -> ConfigLayerStack {
-    let config_file = AbsolutePathBuf::try_from(codex_home.join(CONFIG_TOML_FILE))
-        .expect("absolute config path");
+    let config_file =
+        AbsolutePathBuf::try_from(codex_home.join(CONFIG_TOML_FILE)).expect("absolute config path");
     ConfigLayerStack::new(
         vec![ConfigLayerEntry::new(
             ConfigLayerSource::User {
@@ -201,10 +200,7 @@ fn init_marketplace_repo(repo: &Path, marketplace_name: &str) {
     )
     .expect("write marketplace manifest");
     run_git(repo, &["init"]);
-    run_git(
-        repo,
-        &["config", "user.email", "codex-test@example.com"],
-    );
+    run_git(repo, &["config", "user.email", "codex-test@example.com"]);
     run_git(repo, &["config", "user.name", "Codex Test"]);
     run_git(repo, &["add", "."]);
     run_git(repo, &["commit", "-m", "initial"]);

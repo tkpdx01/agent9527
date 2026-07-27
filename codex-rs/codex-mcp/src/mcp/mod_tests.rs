@@ -307,9 +307,7 @@ fn codex_apps_server_config_forwards_thread_originator_header() {
 
 #[test]
 fn codex_apps_server_config_sets_product_sku_header() {
-    for (configured_product_sku, expected_product_sku) in
-        [(None, "codex"), (Some("tpp"), "tpp")]
-    {
+    for (configured_product_sku, expected_product_sku) in [(None, "codex"), (Some("tpp"), "tpp")] {
         let config = codex_apps_mcp_server_config(
             "https://chatgpt.com",
             configured_product_sku,

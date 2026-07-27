@@ -1162,10 +1162,7 @@ fn curated_repo_backup_archive_zip_bytes(sha: &str) -> Vec<u8> {
         )
         .expect("write marketplace");
     writer
-        .start_file(
-            "plugins/plugins/gmail/.codex-plugin/plugin.json",
-            options,
-        )
+        .start_file("plugins/plugins/gmail/.codex-plugin/plugin.json", options)
         .expect("start plugin manifest entry");
     writer
         .write_all(br#"{"name":"gmail"}"#)

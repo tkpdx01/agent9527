@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use anyhow::Result;
 use codex_config::McpServerAuth;
 use codex_config::McpServerConfig;
 use codex_config::McpServerTransportConfig;
@@ -14,7 +15,6 @@ use codex_rmcp_client::OAuthProviderError;
 use codex_rmcp_client::determine_streamable_http_auth_status_with_http_client;
 use codex_rmcp_client::discover_streamable_http_oauth;
 use codex_rmcp_client::discover_streamable_http_oauth_with_http_client;
-use anyhow::Result;
 use futures::FutureExt;
 use futures::future::join_all;
 use tracing::warn;

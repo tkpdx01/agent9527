@@ -135,9 +135,7 @@ where
         let marketplace_name = validate_marketplace_source_root(path)?;
         validate_marketplace_name_for_add(managed_marketplace_name, &marketplace_name)
             .map_err(MarketplaceAddError::InvalidRequest)?;
-        if find_marketplace_root_by_name(codex_home, &install_root, &marketplace_name)?
-            .is_some()
-        {
+        if find_marketplace_root_by_name(codex_home, &install_root, &marketplace_name)?.is_some() {
             return Err(MarketplaceAddError::InvalidRequest(format!(
                 "marketplace '{marketplace_name}' is already added from a different source; remove it before adding this source"
             )));
@@ -219,10 +217,10 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use anyhow::Result;
     use codex_config::RequirementSource;
     use codex_config::RequirementsLayerEntry;
     use codex_config::compose_requirements;
-    use anyhow::Result;
     use pretty_assertions::assert_eq;
     use std::cell::Cell;
     use tempfile::TempDir;
@@ -268,11 +266,7 @@ mod tests {
                 .is_file()
         );
 
-        let config = fs::read_to_string(
-            codex_home
-                .path()
-                .join(codex_config::CONFIG_TOML_FILE),
-        )?;
+        let config = fs::read_to_string(codex_home.path().join(codex_config::CONFIG_TOML_FILE))?;
         assert!(config.contains("[marketplaces.debug]"));
         assert!(config.contains("source_type = \"git\""));
         assert!(config.contains("source = \"https://github.com/owner/repo.git\""));
@@ -352,11 +346,7 @@ url = "https://github.com/example/allowed.git"
                 .exists()
         );
 
-        let config = fs::read_to_string(
-            codex_home
-                .path()
-                .join(codex_config::CONFIG_TOML_FILE),
-        )?;
+        let config = fs::read_to_string(codex_home.path().join(codex_config::CONFIG_TOML_FILE))?;
         let config: toml::Value = toml::from_str(&config)?;
         assert_eq!(
             config["marketplaces"]["debug"]["source_type"].as_str(),

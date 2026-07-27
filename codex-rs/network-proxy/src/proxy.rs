@@ -14,6 +14,7 @@ use crate::state::NetworkProxyState;
 use anyhow::Context;
 use anyhow::Result;
 use clap::Parser;
+use codex_utils_absolute_path::AbsolutePathBuf;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -28,10 +29,7 @@ use tracing::warn;
 use self::execution_scope::ExecutionScope;
 
 #[derive(Debug, Clone, Parser)]
-#[command(
-    name = "codex-network-proxy",
-    about = "Codex network sandbox proxy"
-)]
+#[command(name = "codex-network-proxy", about = "Codex network sandbox proxy")]
 pub struct Args {}
 
 #[derive(Debug)]
@@ -642,9 +640,7 @@ fn set_env_keys(env: &mut HashMap<String, String>, keys: &[&str], value: &str) {
 
 #[cfg(target_os = "macos")]
 fn codex_proxy_git_ssh_command(socks_addr: SocketAddr) -> String {
-    format!(
-        "{CODEX_PROXY_GIT_SSH_COMMAND_PREFIX}{socks_addr}{CODEX_PROXY_GIT_SSH_COMMAND_SUFFIX}"
-    )
+    format!("{CODEX_PROXY_GIT_SSH_COMMAND_PREFIX}{socks_addr}{CODEX_PROXY_GIT_SSH_COMMAND_SUFFIX}")
 }
 
 #[cfg(target_os = "macos")]

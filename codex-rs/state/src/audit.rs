@@ -1,6 +1,5 @@
 //! Read-only state database queries for diagnostics.
 
-use codex_utils_absolute_path::AbsolutePathBuf;
 use anyhow::Result;
 use sqlx::Row;
 use std::path::PathBuf;

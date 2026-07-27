@@ -85,8 +85,8 @@ fn config_layer_stack_with_requirements(
     .expect("requirements should be present");
     let requirements_toml = with_sources.clone().into_toml();
     let requirements = ConfigRequirements::try_from(with_sources).expect("normalize requirements");
-    let config_file = AbsolutePathBuf::try_from(codex_home.join(CONFIG_TOML_FILE))
-        .expect("absolute config path");
+    let config_file =
+        AbsolutePathBuf::try_from(codex_home.join(CONFIG_TOML_FILE)).expect("absolute config path");
     ConfigLayerStack::new(
         vec![ConfigLayerEntry::new(
             ConfigLayerSource::User {
@@ -706,10 +706,7 @@ fn write_plugin(root: &Path, dir_name: &str, manifest_name: &str) {
 
 fn init_git_repo(repo: &Path) {
     run_git(repo, &["init"]);
-    run_git(
-        repo,
-        &["config", "user.email", "codex-test@example.com"],
-    );
+    run_git(repo, &["config", "user.email", "codex-test@example.com"]);
     run_git(repo, &["config", "user.name", "Codex Test"]);
     run_git(repo, &["add", "."]);
     run_git(repo, &["commit", "-m", "initial"]);
@@ -759,13 +756,9 @@ async fn load_plugins_from_config(
 ) -> PluginLoadOutcome {
     write_file(&codex_home.join(CONFIG_TOML_FILE), config_toml);
     let config = load_config(codex_home, codex_home).await;
-    PluginsManager::new_with_options(
-        codex_home.to_path_buf(),
-        Some(Product::Codex),
-        auth_mode,
-    )
-    .plugins_for_config(&config)
-    .await
+    PluginsManager::new_with_options(codex_home.to_path_buf(), Some(Product::Codex), auth_mode)
+        .plugins_for_config(&config)
+        .await
 }
 
 async fn load_config(codex_home: &Path, cwd: &Path) -> PluginsConfigInput {
@@ -1298,11 +1291,7 @@ enabled = true
     write_cached_plugin(codex_home.path(), "openai-curated", "linear");
     write_cached_plugin(codex_home.path(), "openai-curated", "calendar");
     write_cached_plugin(codex_home.path(), "openai-curated-remote", "linear");
-    write_cached_plugin(
-        codex_home.path(),
-        "openai-curated-remote",
-        "remote-only",
-    );
+    write_cached_plugin(codex_home.path(), "openai-curated-remote", "remote-only");
 
     let config = load_config(codex_home.path(), codex_home.path()).await;
     let manager = PluginsManager::new(codex_home.path().to_path_buf());
@@ -1348,11 +1337,7 @@ enabled = true
     write_cached_plugin(codex_home.path(), "openai-api-curated", "linear");
     write_cached_plugin(codex_home.path(), "openai-curated", "calendar");
     write_cached_plugin(codex_home.path(), "openai-curated-remote", "linear");
-    write_cached_plugin(
-        codex_home.path(),
-        "openai-curated-remote",
-        "remote-only",
-    );
+    write_cached_plugin(codex_home.path(), "openai-curated-remote", "remote-only");
 
     let config = load_config(codex_home.path(), codex_home.path()).await;
     let manager = PluginsManager::new_with_options(
@@ -2413,8 +2398,7 @@ async fn effective_apps_dedupes_connector_ids_across_plugins() {
         toml::to_string(&Value::Table(root)).expect("plugin test config should serialize");
 
     let outcome =
-        load_plugins_from_config(&config_toml, codex_home.path(), Some(AuthMode::Chatgpt))
-            .await;
+        load_plugins_from_config(&config_toml, codex_home.path(), Some(AuthMode::Chatgpt)).await;
 
     assert_eq!(
         outcome.effective_apps(),
@@ -3240,11 +3224,7 @@ async fn install_plugin_supports_git_subdir_marketplace_sources() {
             auth_policy: MarketplacePluginAuthPolicy::OnInstall,
         }
     );
-    assert!(
-        installed_path
-            .join(".codex-plugin/plugin.json")
-            .is_file()
-    );
+    assert!(installed_path.join(".codex-plugin/plugin.json").is_file());
 }
 
 #[tokio::test]
@@ -3298,11 +3278,7 @@ async fn install_plugin_supports_relative_git_subdir_marketplace_sources() {
             auth_policy: MarketplacePluginAuthPolicy::OnInstall,
         }
     );
-    assert!(
-        installed_path
-            .join(".codex-plugin/plugin.json")
-            .is_file()
-    );
+    assert!(installed_path.join(".codex-plugin/plugin.json").is_file());
 }
 
 #[tokio::test]
@@ -6109,8 +6085,7 @@ async fn load_plugins_ignores_project_config_files() {
     let stack = ConfigLayerStack::new(
         vec![ConfigLayerEntry::new(
             ConfigLayerSource::Project {
-                dot_codex_folder: AbsolutePathBuf::try_from(project_root.join(".codex"))
-                    .unwrap(),
+                dot_codex_folder: AbsolutePathBuf::try_from(project_root.join(".codex")).unwrap(),
             },
             toml::from_str(&plugin_config_toml(
                 /*enabled*/ true, /*plugins_feature_enabled*/ true,

@@ -191,10 +191,8 @@ impl ExecutorFileSystem for SyntheticFileSystem {
 
 #[tokio::test]
 async fn skill_loading_and_reads_use_the_supplied_executor_file_system() {
-    let test_root = std::env::temp_dir().join(format!(
-        "codex-executor-skill-fs-{}",
-        std::process::id()
-    ));
+    let test_root =
+        std::env::temp_dir().join(format!("codex-executor-skill-fs-{}", std::process::id()));
     let alias_root = AbsolutePathBuf::from_absolute_path_checked(test_root.join("alias"))
         .expect("absolute path");
     let canonical_root = AbsolutePathBuf::from_absolute_path_checked(test_root.join("canonical"))

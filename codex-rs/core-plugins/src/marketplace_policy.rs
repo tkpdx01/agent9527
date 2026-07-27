@@ -112,9 +112,7 @@ impl MarketplacePolicy {
         }
 
         let root = marketplace_root_dir(marketplace_path).map_err(|err| err.to_string())?;
-        if let Some(expected_name) =
-            managed_marketplace_name(codex_home, marketplace_path, &root)
-        {
+        if let Some(expected_name) = managed_marketplace_name(codex_home, marketplace_path, &root) {
             return validate_expected_marketplace_name(expected_name, marketplace_name);
         }
 
@@ -287,8 +285,7 @@ pub(crate) fn configured_plugins_from_stack(
     config_layer_stack: &ConfigLayerStack,
     codex_home: &Path,
 ) -> HashMap<String, PluginConfig> {
-    let Some(user_config) = project_effective_user_config(config_layer_stack, codex_home)
-    else {
+    let Some(user_config) = project_effective_user_config(config_layer_stack, codex_home) else {
         return HashMap::new();
     };
     let Some(plugins_value) = user_config.get("plugins") else {

@@ -32,6 +32,9 @@ use crate::server::EffectiveMcpServer;
 use crate::tool_catalog_cache::McpToolCatalogCacheContext;
 use crate::tool_catalog_cache::McpToolCatalogFetchTicket;
 use crate::tools::ToolInfo;
+use anyhow::Result;
+use anyhow::anyhow;
+use async_channel::Sender;
 use codex_api::SharedAuthProvider;
 use codex_async_utils::CancelErr;
 use codex_async_utils::OrCancelExt;
@@ -53,9 +56,6 @@ use codex_rmcp_client::RmcpClient;
 use codex_rmcp_client::StdioServerLauncher;
 use codex_rmcp_client::ToolWithConnectorId;
 use codex_rmcp_client::is_authentication_required_error;
-use anyhow::Result;
-use anyhow::anyhow;
-use async_channel::Sender;
 use futures::future::BoxFuture;
 use futures::future::FutureExt;
 use futures::future::Shared;
@@ -84,8 +84,7 @@ pub const OPENAI_FORM_CAPABILITY: &str = "openai/form";
 pub(crate) const MCP_TOOLS_LIST_DURATION_METRIC: &str = "codex.mcp.tools.list.duration_ms";
 pub(crate) const MCP_TOOLS_FETCH_UNCACHED_DURATION_METRIC: &str =
     "codex.mcp.tools.fetch_uncached.duration_ms";
-pub(crate) const CODEX_APPS_REFRESH_DURATION_METRIC: &str =
-    "codex.apps.refresh.duration_ms";
+pub(crate) const CODEX_APPS_REFRESH_DURATION_METRIC: &str = "codex.apps.refresh.duration_ms";
 pub(crate) const DEFAULT_STARTUP_TIMEOUT: Duration = Duration::from_secs(30);
 pub(crate) const DEFAULT_TOOL_TIMEOUT: Duration = Duration::from_secs(300);
 
@@ -231,8 +230,7 @@ impl CodexAppsStartupReconnect {
                     }
                     Err(error) => {
                         state.consecutive_failures = state.consecutive_failures.saturating_add(1);
-                        let retry_after =
-                            codex_apps_reconnect_backoff(state.consecutive_failures);
+                        let retry_after = codex_apps_reconnect_backoff(state.consecutive_failures);
                         state.retry_not_before = Some(TokioInstant::now() + retry_after);
                         warn!(
                             error = %error,
@@ -718,8 +716,7 @@ fn codex_apps_tool_info_from_listed_tool(
     let callable_namespace =
         normalize_codex_apps_callable_namespace(server_name, connector_name.as_deref());
     if let Some(title) = tool_def.title.as_deref() {
-        let normalized_title =
-            normalize_codex_apps_tool_title(connector_name.as_deref(), title);
+        let normalized_title = normalize_codex_apps_tool_title(connector_name.as_deref(), title);
         if tool_def.title.as_deref() != Some(normalized_title.as_str()) {
             tool_def.title = Some(normalized_title);
         }
@@ -889,8 +886,7 @@ async fn start_server_task(
         (None, None) => client_tools.clone(),
         _ => unreachable!("Codex Apps fetch ticket requires cache context"),
     };
-    let has_shared_tool_catalog =
-        is_codex_apps_mcp_server || tool_catalog_cache_context.is_some();
+    let has_shared_tool_catalog = is_codex_apps_mcp_server || tool_catalog_cache_context.is_some();
     if let (Some(cache_context), Some(fetch_ticket)) = (
         tool_catalog_cache_context.as_ref(),
         tool_catalog_fetch_ticket,
@@ -931,8 +927,7 @@ fn mcp_initialize_request_params(
     }
     InitializeRequestParams::new(
         capabilities,
-        Implementation::new("codex-mcp-client", env!("CARGO_PKG_VERSION"))
-            .with_title("Codex"),
+        Implementation::new("codex-mcp-client", env!("CARGO_PKG_VERSION")).with_title("Codex"),
     )
     .with_protocol_version(ProtocolVersion::V_2025_06_18)
 }

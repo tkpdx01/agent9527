@@ -942,8 +942,7 @@ mod tests {
     fn find_extracted_plugin_root_rejects_nested_plugin_root() {
         let extraction_root = tempdir().expect("tempdir");
         let plugin_root = extraction_root.path().join("linear");
-        std::fs::create_dir_all(plugin_root.join(".codex-plugin"))
-            .expect("create manifest dir");
+        std::fs::create_dir_all(plugin_root.join(".codex-plugin")).expect("create manifest dir");
         std::fs::write(
             plugin_root.join(".codex-plugin/plugin.json"),
             r#"{"name":"linear"}"#,

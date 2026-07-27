@@ -44,8 +44,6 @@ use codex_plugin::PluginCapabilitySummary;
 use codex_protocol::ThreadId;
 use codex_protocol::openai_models::ReasoningEffort;
 use codex_protocol::user_input::TextElement;
-pub(crate) use bottom_pane_view::BottomPaneView;
-pub(crate) use bottom_pane_view::ViewCompletion;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyEventKind;
