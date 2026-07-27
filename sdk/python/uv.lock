@@ -275,7 +275,7 @@ wheels = [
 
 [[package]]
 name = "openai-agent9527"
-version = "20260727.1.0"
+version = "20260727.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "openai-agent9527-cli-bin" },
@@ -318,7 +318,7 @@ test = [
 
 [[package]]
 name = "openai-agent9527-cli-bin"
-version = "20260727.1.0"
+version = "20260727.2.0"
 source = { directory = "../python-runtime" }
 
 [[package]]

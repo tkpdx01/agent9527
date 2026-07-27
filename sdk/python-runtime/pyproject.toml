@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "openai-agent9527-cli-bin"
-version = "20260727.1.0"
+version = "20260727.2.0"
 description = "Pinned Agent9527 CLI runtime for the Python SDK"
 readme = "README.md"
 requires-python = ">=3.10"

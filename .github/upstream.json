@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/openai/codex",
   "branch": "main",
-  "commit": "18f50c9e628af083a52d9240de09fc2db24d79ce",
-  "version": "20260727.1.0",
-  "syncedAt": "2026-07-27T09:01:52+08:00"
+  "commit": "8a1c9414399bd8c52cd11d89f420767c41f4ae99",
+  "version": "20260727.2.0",
+  "syncedAt": "2026-07-27T19:27:52.246338+08:00"
 }

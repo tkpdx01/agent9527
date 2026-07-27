@@ -255,7 +255,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-agent-extension"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core",
  "agent9527-protocol",
@@ -267,7 +267,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-agent-graph-store"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-state",
@@ -282,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-agent-identity"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-http-client",
  "agent9527-protocol",
@@ -302,7 +302,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-analytics"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-app-server-protocol",
  "agent9527-git-utils",
@@ -323,7 +323,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-ansi-escape"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "ansi-to-tui",
  "ratatui",
@@ -332,7 +332,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-api"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-client",
  "agent9527-http-client",
@@ -368,7 +368,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-app-server"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-agent-extension",
  "agent9527-analytics",
@@ -466,7 +466,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-app-server-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-app-server",
  "agent9527-app-server-protocol",
@@ -493,7 +493,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-app-server-daemon"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-app-server-protocol",
  "agent9527-app-server-transport",
@@ -514,7 +514,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-app-server-protocol"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-experimental-api-macros",
  "agent9527-extension-items",
@@ -543,7 +543,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-app-server-test-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-app-server-protocol",
  "agent9527-core",
@@ -565,7 +565,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-app-server-transport"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-app-server-protocol",
@@ -607,7 +607,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-apply-patch"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-exec-server",
  "agent9527-utils-absolute-path",
@@ -627,7 +627,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-arg0"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-apply-patch",
  "agent9527-exec-server",
@@ -647,7 +647,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-async-utils"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "pretty_assertions",
  "tokio",
@@ -656,7 +656,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-aws-auth"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "aws-config",
  "aws-credential-types",
@@ -671,7 +671,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-backend-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-backend-openapi-models",
@@ -691,7 +691,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-backend-openapi-models"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -700,7 +700,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-bwrap"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "cc",
  "libc",
@@ -709,7 +709,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-chatgpt"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-connectors",
  "agent9527-core",
@@ -730,7 +730,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-cli"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-app-server",
@@ -811,7 +811,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-http-client",
  "eventsource-stream",
@@ -823,7 +823,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-cloud-config"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-agent-identity",
  "agent9527-backend-client",
@@ -848,7 +848,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-cloud-tasks"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-cloud-tasks-client",
  "agent9527-cloud-tasks-mock-client",
@@ -879,7 +879,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-cloud-tasks-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-backend-client",
@@ -894,7 +894,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-cloud-tasks-mock-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-cloud-tasks-client",
  "chrono",
@@ -903,7 +903,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-code-mode"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-code-mode-protocol",
  "agent9527-http-client",
@@ -922,7 +922,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-code-mode-host"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-code-mode",
  "agent9527-code-mode-protocol",
@@ -944,7 +944,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-code-mode-protocol"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "pretty_assertions",
@@ -956,11 +956,11 @@ dependencies = [
 
 [[package]]
 name = "agent9527-collaboration-mode-templates"
-version = "20260727.1.0"
+version = "20260727.2.0"
 
 [[package]]
 name = "agent9527-config"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-execpolicy",
  "agent9527-features",
@@ -1008,7 +1008,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-connectors"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-config",
  "agent9527-login",
@@ -1030,7 +1030,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-connectors-extension"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-connectors",
  "agent9527-core-plugins",
@@ -1043,7 +1043,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-context-fragments"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-utils-string",
@@ -1051,7 +1051,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-core"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-agent-graph-store",
  "agent9527-analytics",
@@ -1181,7 +1181,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-core-api"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-analytics",
  "agent9527-app-server-protocol",
@@ -1203,7 +1203,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-core-plugins"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-analytics",
  "agent9527-app-server-protocol",
@@ -1256,7 +1256,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-core-skills"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-analytics",
  "agent9527-config",
@@ -1290,7 +1290,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-exec"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-app-server-client",
  "agent9527-app-server-protocol",
@@ -1336,7 +1336,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-exec-server"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-exec-server-protocol",
@@ -1390,7 +1390,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-exec-server-protocol"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-file-system",
  "agent9527-network-proxy",
@@ -1405,7 +1405,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-exec-server-test-support"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-exec-server",
  "agent9527-http-client",
@@ -1413,7 +1413,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-execpolicy"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-absolute-path",
  "anyhow",
@@ -1431,7 +1431,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-experimental-api-macros"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1440,7 +1440,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-extension-api"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-config",
  "agent9527-context-fragments",
@@ -1456,7 +1456,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-extension-items"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-absolute-path",
  "pretty_assertions",
@@ -1468,7 +1468,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-external-agent-migration"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-analytics",
  "agent9527-app-server-protocol",
@@ -1496,7 +1496,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-features"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-otel",
  "agent9527-protocol",
@@ -1509,7 +1509,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-feedback"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-login",
  "agent9527-protocol",
@@ -1523,7 +1523,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-file-search"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -1539,7 +1539,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-file-system"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-utils-absolute-path",
@@ -1551,7 +1551,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-file-watcher"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "notify",
  "pretty_assertions",
@@ -1562,7 +1562,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-git-attribution"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-backend-client",
  "agent9527-extension-api",
@@ -1575,7 +1575,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-git-utils"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-file-system",
  "agent9527-protocol",
@@ -1600,7 +1600,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-goal-extension"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-analytics",
  "agent9527-core",
@@ -1623,7 +1623,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-guardian"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core",
  "agent9527-extension-api",
@@ -1632,7 +1632,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-home"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-extension-api",
  "agent9527-utils-absolute-path",
@@ -1643,7 +1643,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-hooks"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-config",
  "agent9527-plugin",
@@ -1666,7 +1666,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-http-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-cargo-bin",
  "agent9527-utils-rustls-provider",
@@ -1697,7 +1697,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-image-generation-extension"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-core",
@@ -1724,7 +1724,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-install-context"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-absolute-path",
  "agent9527-utils-home-dir",
@@ -1734,7 +1734,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-keyring-store"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "keyring",
  "tracing",
@@ -1742,7 +1742,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-linux-sandbox"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core",
  "agent9527-install-context",
@@ -1767,7 +1767,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-lmstudio"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core",
  "agent9527-http-client",
@@ -1781,7 +1781,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-login"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-agent-identity",
  "agent9527-config",
@@ -1823,7 +1823,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-mcp"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-async-utils",
@@ -1860,7 +1860,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-mcp-extension"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-config",
  "agent9527-connectors",
@@ -1886,7 +1886,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-mcp-server"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-arg0",
  "agent9527-config",
@@ -1922,7 +1922,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-memories-extension"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core",
  "agent9527-extension-api",
@@ -1943,7 +1943,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-memories-read"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-shell-command",
@@ -1953,7 +1953,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-memories-write"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-backend-client",
  "agent9527-config",
@@ -1990,7 +1990,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-message-history"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-config",
  "memchr",
@@ -2004,7 +2004,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-model-provider"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-agent-identity",
  "agent9527-api",
@@ -2027,7 +2027,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-model-provider-info"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-protocol",
@@ -2043,7 +2043,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-models-manager"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-collaboration-mode-templates",
  "agent9527-http-client",
@@ -2063,7 +2063,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-network-proxy"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-absolute-path",
  "agent9527-utils-home-dir",
@@ -2101,7 +2101,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-ollama"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core",
  "agent9527-model-provider-info",
@@ -2121,7 +2121,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-otel"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-protocol",
@@ -2152,7 +2152,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-plugin"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-config",
  "agent9527-protocol",
@@ -2165,7 +2165,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-process-hardening"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "libc",
  "pretty_assertions",
@@ -2173,7 +2173,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-prompts"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-context-fragments",
  "agent9527-execpolicy",
@@ -2187,7 +2187,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-protocol"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-async-utils",
  "agent9527-execpolicy",
@@ -2229,7 +2229,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-response-debug-context"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "base64 0.22.1",
@@ -2240,7 +2240,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-responses-api-proxy"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-process-hardening",
  "anyhow",
@@ -2257,7 +2257,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-rmcp-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-config",
@@ -2299,7 +2299,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-rollout"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-extension-items",
  "agent9527-file-search",
@@ -2325,7 +2325,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-rollout-trace"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-code-mode",
  "agent9527-protocol",
@@ -2341,7 +2341,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-sandboxing"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-network-proxy",
  "agent9527-protocol",
@@ -2365,7 +2365,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-secrets"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "age",
  "agent9527-git-utils",
@@ -2386,7 +2386,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-shell-command"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-utils-absolute-path",
@@ -2407,7 +2407,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-shell-escalation"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-utils-absolute-path",
@@ -2427,7 +2427,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-skills"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-utils-absolute-path",
@@ -2438,7 +2438,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-skills-extension"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core-skills",
  "agent9527-exec-server",
@@ -2464,7 +2464,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-state"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-git-utils",
  "agent9527-protocol",
@@ -2490,7 +2490,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-stdio-to-uds"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-uds",
  "agent9527-utils-cargo-bin",
@@ -2502,7 +2502,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-terminal-detection"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "pretty_assertions",
  "tracing",
@@ -2510,7 +2510,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-test-binary-support"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-arg0",
  "tempfile",
@@ -2518,7 +2518,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-thread-manager-sample"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core-api",
  "anyhow",
@@ -2529,7 +2529,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-thread-store"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-app-server-protocol",
  "agent9527-git-utils",
@@ -2557,7 +2557,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-tools"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-code-mode",
  "agent9527-connectors",
@@ -2582,7 +2582,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-tui"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-ansi-escape",
  "agent9527-app-server-client",
@@ -2695,7 +2695,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-uds"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "async-io",
  "pretty_assertions",
@@ -2707,7 +2707,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-absolute-path"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "dirs",
  "dunce",
@@ -2721,14 +2721,14 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-approval-presets"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
 ]
 
 [[package]]
 name = "agent9527-utils-cache"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "lru 0.16.3",
  "sha1 0.10.6",
@@ -2737,7 +2737,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-cargo-bin"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "assert_cmd",
  "runfiles",
@@ -2746,7 +2746,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-cli"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-shell-command",
@@ -2758,15 +2758,15 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-elapsed"
-version = "20260727.1.0"
+version = "20260727.2.0"
 
 [[package]]
 name = "agent9527-utils-fuzzy-match"
-version = "20260727.1.0"
+version = "20260727.2.0"
 
 [[package]]
 name = "agent9527-utils-home-dir"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-absolute-path",
  "dirs",
@@ -2776,7 +2776,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-image"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-cache",
  "base64 0.22.1",
@@ -2789,7 +2789,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-json-to-toml"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "pretty_assertions",
  "serde_json",
@@ -2798,7 +2798,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-oss"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-core",
  "agent9527-lmstudio",
@@ -2808,7 +2808,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-output-truncation"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-utils-string",
@@ -2817,7 +2817,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-path"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-absolute-path",
  "dunce",
@@ -2827,7 +2827,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-path-uri"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-utils-absolute-path",
  "base64 0.22.1",
@@ -2843,7 +2843,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-plugins"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-exec-server",
  "agent9527-exec-server-protocol",
@@ -2857,7 +2857,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-pty"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "anyhow",
  "filedescriptor",
@@ -2873,7 +2873,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-readiness"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "assert_matches",
  "thiserror 2.0.18",
@@ -2883,14 +2883,14 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-rustls-provider"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "rustls",
 ]
 
 [[package]]
 name = "agent9527-utils-sandbox-summary"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-protocol",
  "agent9527-utils-absolute-path",
@@ -2899,7 +2899,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-sleep-inhibitor"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "core-foundation 0.9.4",
  "libc",
@@ -2909,14 +2909,14 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-stream-parser"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "pretty_assertions",
 ]
 
 [[package]]
 name = "agent9527-utils-string"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "pretty_assertions",
  "regex-lite",
@@ -2926,14 +2926,14 @@ dependencies = [
 
 [[package]]
 name = "agent9527-utils-template"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "pretty_assertions",
 ]
 
 [[package]]
 name = "agent9527-v8-poc"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "pretty_assertions",
  "v8",
@@ -2941,7 +2941,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-web-search-extension"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-api",
  "agent9527-core",
@@ -2962,7 +2962,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-websocket-client"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-http-client",
  "agent9527-utils-rustls-provider",
@@ -2978,7 +2978,7 @@ dependencies = [
 
 [[package]]
 name = "agent9527-windows-sandbox"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-otel",
  "agent9527-protocol",
@@ -3143,7 +3143,7 @@ checksum = "2a4385e2e34eb35d6b3efe798b9eb88096925d87726c0798709bf56d9ed84af3"
 
 [[package]]
 name = "app_test_support"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-app-server-protocol",
  "agent9527-config",
@@ -4811,7 +4811,7 @@ dependencies = [
 
 [[package]]
 name = "core_test_support"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-arg0",
  "agent9527-config",
@@ -8973,7 +8973,7 @@ dependencies = [
 
 [[package]]
 name = "mcp_test_support"
-version = "20260727.1.0"
+version = "20260727.2.0"
 dependencies = [
  "agent9527-login",
  "agent9527-mcp-server",
