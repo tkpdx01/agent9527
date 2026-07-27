@@ -11,6 +11,7 @@
 
 mod cwd_junction;
 
+use agent9527_utils_pty::JobObject;
 use agent9527_windows_sandbox::ConsoleMode;
 use agent9527_windows_sandbox::ErrorPayload;
 use agent9527_windows_sandbox::ErrorStage;

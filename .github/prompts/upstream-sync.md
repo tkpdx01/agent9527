@@ -17,7 +17,8 @@ Required outcome:
 5. Preserve the `@tkpdx01/agent9527` npm packaging and OpenAI-compatible third-party API support.
 6. Follow `AGENTS.md`, including formatting, Rust lint conventions, module size guidance, and tests.
 7. Run proportionate checks and fix failures. At minimum, make the Agent9527 CLI compile and keep the
-   repository formatting clean.
+   repository formatting clean. When changes touch platform-specific code, compile-check the affected
+   target or binary so Linux-only validation does not hide macOS or Windows failures.
 
 Safety and workflow invariants:
 
