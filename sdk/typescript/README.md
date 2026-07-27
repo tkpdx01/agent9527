@@ -1,13 +1,13 @@
-# Agent9527 SDK
+# Codex SDK
 
-Embed the Agent9527 agent in your workflows and apps.
+Embed the Codex agent in your workflows and apps.
 
-The TypeScript SDK wraps the `agent9527` CLI from `@tkpdx01/agent9527`. It spawns the CLI and exchanges JSONL events over stdin/stdout.
+The TypeScript SDK wraps the `codex` CLI from `@openai/codex`. It spawns the CLI and exchanges JSONL events over stdin/stdout.
 
 ## Installation
 
 ```bash
-npm install @tkpdx01/agent9527-sdk
+npm install @openai/codex-sdk
 ```
 
 Requires Node.js 18+.
@@ -15,10 +15,10 @@ Requires Node.js 18+.
 ## Quickstart
 
 ```typescript
-import { Agent9527 } from "@tkpdx01/agent9527-sdk";
+import { Codex } from "@openai/codex-sdk";
 
-const agent9527 = new Agent9527();
-const thread = agent9527.startThread();
+const codex = new Codex();
+const thread = codex.startThread();
 const turn = await thread.run("Diagnose the test failure and propose a fix");
 
 console.log(turn.finalResponse);
@@ -52,7 +52,7 @@ for await (const event of events) {
 
 ### Structured output
 
-The Agent9527 agent can produce a JSON response that conforms to a specified schema. The schema can be provided for each turn as a plain JSON object.
+The Codex agent can produce a JSON response that conforms to a specified schema. The schema can be provided for each turn as a plain JSON object.
 
 ```typescript
 const schema = {
@@ -85,7 +85,7 @@ console.log(turn.finalResponse);
 
 ### Attaching images
 
-Provide structured input entries when you need to include images alongside text. Text entries are concatenated into the final prompt while image entries are passed to the Agent9527 CLI via `--image`.
+Provide structured input entries when you need to include images alongside text. Text entries are concatenated into the final prompt while image entries are passed to the Codex CLI via `--image`.
 
 ```typescript
 const turn = await thread.run([
@@ -97,48 +97,48 @@ const turn = await thread.run([
 
 ### Resuming an existing thread
 
-Threads are persisted in `~/.agent9527/sessions`. If you lose the in-memory `Thread` object, reconstruct it with `resumeThread()` and keep going.
+Threads are persisted in `~/.codex/sessions`. If you lose the in-memory `Thread` object, reconstruct it with `resumeThread()` and keep going.
 
 ```typescript
-const savedThreadId = process.env.AGENT9527_THREAD_ID!;
-const thread = agent9527.resumeThread(savedThreadId);
+const savedThreadId = process.env.CODEX_THREAD_ID!;
+const thread = codex.resumeThread(savedThreadId);
 await thread.run("Implement the fix");
 ```
 
 ### Working directory controls
 
-Agent9527 runs in the current working directory by default. To avoid unrecoverable errors, Agent9527 requires the working directory to be a Git repository. You can skip the Git repository check by passing the `skipGitRepoCheck` option when creating a thread.
+Codex runs in the current working directory by default. To avoid unrecoverable errors, Codex requires the working directory to be a Git repository. You can skip the Git repository check by passing the `skipGitRepoCheck` option when creating a thread.
 
 ```typescript
-const thread = agent9527.startThread({
+const thread = codex.startThread({
   workingDirectory: "/path/to/project",
   skipGitRepoCheck: true,
 });
 ```
 
-### Controlling the Agent9527 CLI environment
+### Controlling the Codex CLI environment
 
-By default, the Agent9527 CLI inherits the Node.js process environment. Provide the optional `env` parameter when instantiating the
-`Agent9527` client to fully control which variables the CLI receives—useful for sandboxed hosts like Electron apps.
+By default, the Codex CLI inherits the Node.js process environment. Provide the optional `env` parameter when instantiating the
+`Codex` client to fully control which variables the CLI receives—useful for sandboxed hosts like Electron apps.
 
 ```typescript
-const agent9527 = new Agent9527({
+const codex = new Codex({
   env: {
     PATH: "/usr/local/bin",
   },
 });
 ```
 
-The SDK still injects its required variables (such as `AGENT9527_API_KEY`) on top of the environment you provide. If you set
+The SDK still injects its required variables (such as `CODEX_API_KEY`) on top of the environment you provide. If you set
 `baseUrl`, the SDK passes it as a `--config openai_base_url=...` override.
 
 ### Passing `--config` overrides
 
-Use the `config` option to provide additional Agent9527 CLI configuration overrides. The SDK accepts a JSON object, flattens it
+Use the `config` option to provide additional Codex CLI configuration overrides. The SDK accepts a JSON object, flattens it
 into dotted paths, and serializes values as TOML literals before passing them as repeated `--config key=value` flags.
 
 ```typescript
-const agent9527 = new Agent9527({
+const codex = new Codex({
   config: {
     show_raw_agent_reasoning: true,
     sandbox_workspace_write: { network_access: true },

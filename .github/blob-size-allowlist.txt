@@ -1,10 +1,10 @@
 # Paths are matched exactly, relative to the repository root.
 # Keep this list short and limited to intentional large checked-in assets.
 
-.github/agent9527-cli-splash.png
+.github/codex-cli-splash.png
 MODULE.bazel.lock
-agent9527-rs/app-server-protocol/schema/json/agent9527_app_server_protocol.schemas.json
-agent9527-rs/app-server-protocol/schema/json/agent9527_app_server_protocol.v2.schemas.json
-agent9527-rs/tui/tests/fixtures/oss-story.jsonl
-agent9527-rs/tui_app_server/tests/fixtures/oss-story.jsonl
-agent9527-rs/tui/src/app.rs
+codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json
+codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json
+codex-rs/tui/tests/fixtures/oss-story.jsonl
+codex-rs/tui_app_server/tests/fixtures/oss-story.jsonl
+codex-rs/tui/src/app.rs

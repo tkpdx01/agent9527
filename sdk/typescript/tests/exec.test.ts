@@ -43,13 +43,13 @@ function createEarlyExitChild(exitCode = 2): FakeChildProcess {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-describe("Agent9527Exec", () => {
+describe("CodexExec", () => {
   it("rejects when exit happens before stdout closes", async () => {
-    const { Agent9527Exec } = await import("../src/exec");
+    const { CodexExec } = await import("../src/exec");
     const child = createEarlyExitChild();
     spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
 
-    const exec = new Agent9527Exec("agent9527");
+    const exec = new CodexExec("codex");
     const runPromise = (async () => {
       for await (const _ of exec.run({ input: "hi" })) {
         // no-op
@@ -67,12 +67,12 @@ describe("Agent9527Exec", () => {
     expect(result.status).toBe("rejected");
     if (result.status === "rejected") {
       expect(result.error).toBeInstanceOf(Error);
-      expect(result.error.message).toMatch(/Agent9527 Exec exited/);
+      expect(result.error.message).toMatch(/Codex Exec exited/);
     }
   });
 
   it("places resume args before image args", async () => {
-    const { Agent9527Exec } = await import("../src/exec");
+    const { CodexExec } = await import("../src/exec");
     spawnMock.mockClear();
     const child = new FakeChildProcess();
     spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
@@ -83,7 +83,7 @@ describe("Agent9527Exec", () => {
       child.emit("exit", 0, null);
     });
 
-    const exec = new Agent9527Exec("agent9527");
+    const exec = new CodexExec("codex");
     for await (const _ of exec.run({ input: "hi", images: ["img.png"], threadId: "thread-id" })) {
       // no-op
     }
@@ -97,8 +97,8 @@ describe("Agent9527Exec", () => {
     expect(resumeIndex).toBeLessThan(imageIndex);
   });
 
-  it("allows overriding the env passed to the Agent9527 CLI", async () => {
-    const { Agent9527Exec } = await import("../src/exec");
+  it("allows overriding the env passed to the Codex CLI", async () => {
+    const { CodexExec } = await import("../src/exec");
     spawnMock.mockClear();
     const child = new FakeChildProcess();
     spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
@@ -109,11 +109,11 @@ describe("Agent9527Exec", () => {
       child.emit("exit", 0, null);
     });
 
-    process.env.AGENT9527_ENV_SHOULD_NOT_LEAK = "leak";
+    process.env.CODEX_ENV_SHOULD_NOT_LEAK = "leak";
 
     try {
-      const exec = new Agent9527Exec("agent9527", {
-        AGENT9527_HOME: "/tmp/agent9527-home",
+      const exec = new CodexExec("codex", {
+        CODEX_HOME: "/tmp/codex-home",
         CUSTOM_ENV: "custom",
       });
 
@@ -134,54 +134,54 @@ describe("Agent9527Exec", () => {
         throw new Error("Spawn args missing");
       }
 
-      expect(spawnEnv.AGENT9527_HOME).toBe("/tmp/agent9527-home");
+      expect(spawnEnv.CODEX_HOME).toBe("/tmp/codex-home");
       expect(spawnEnv.CUSTOM_ENV).toBe("custom");
-      expect(spawnEnv.AGENT9527_ENV_SHOULD_NOT_LEAK).toBeUndefined();
-      expect(spawnEnv.AGENT9527_API_KEY).toBe("test");
-      expect(spawnEnv.AGENT9527_INTERNAL_ORIGINATOR_OVERRIDE).toBeDefined();
+      expect(spawnEnv.CODEX_ENV_SHOULD_NOT_LEAK).toBeUndefined();
+      expect(spawnEnv.CODEX_API_KEY).toBe("test");
+      expect(spawnEnv.CODEX_INTERNAL_ORIGINATOR_OVERRIDE).toBeDefined();
       expect(commandArgs).toContain("--config");
       expect(commandArgs).toContain(`openai_base_url=${JSON.stringify("https://example.test")}`);
     } finally {
-      delete process.env.AGENT9527_ENV_SHOULD_NOT_LEAK;
+      delete process.env.CODEX_ENV_SHOULD_NOT_LEAK;
     }
   });
 
   it("resolves the package-layout binary and PATH directory", async () => {
     const { resolveNativePackage } = await import("../src/exec");
-    const vendorRoot = mkdtempSync(path.join(tmpdir(), "agent9527-sdk-vendor-"));
+    const vendorRoot = mkdtempSync(path.join(tmpdir(), "codex-sdk-vendor-"));
     const packageRoot = path.join(vendorRoot, "x86_64-unknown-linux-musl");
     const binDir = path.join(packageRoot, "bin");
-    const pathDir = path.join(packageRoot, "agent9527-path");
+    const pathDir = path.join(packageRoot, "codex-path");
     mkdirSync(binDir, { recursive: true });
     mkdirSync(pathDir, { recursive: true });
-    writeFileSync(path.join(packageRoot, "agent9527-package.json"), "{}");
-    writeFileSync(path.join(binDir, "agent9527"), "");
+    writeFileSync(path.join(packageRoot, "codex-package.json"), "{}");
+    writeFileSync(path.join(binDir, "codex"), "");
 
-    expect(resolveNativePackage(vendorRoot, "x86_64-unknown-linux-musl", "agent9527")).toEqual({
-      executablePath: path.join(binDir, "agent9527"),
+    expect(resolveNativePackage(vendorRoot, "x86_64-unknown-linux-musl", "codex")).toEqual({
+      executablePath: path.join(binDir, "codex"),
       pathDirs: [pathDir],
     });
   });
 
   it("falls back to the legacy binary layout", async () => {
     const { resolveNativePackage } = await import("../src/exec");
-    const vendorRoot = mkdtempSync(path.join(tmpdir(), "agent9527-sdk-vendor-"));
+    const vendorRoot = mkdtempSync(path.join(tmpdir(), "codex-sdk-vendor-"));
     const packageRoot = path.join(vendorRoot, "x86_64-unknown-linux-musl");
-    const binDir = path.join(packageRoot, "agent9527");
+    const binDir = path.join(packageRoot, "codex");
     const pathDir = path.join(packageRoot, "path");
     mkdirSync(binDir, { recursive: true });
     mkdirSync(pathDir, { recursive: true });
-    writeFileSync(path.join(binDir, "agent9527"), "");
+    writeFileSync(path.join(binDir, "codex"), "");
 
-    expect(resolveNativePackage(vendorRoot, "x86_64-unknown-linux-musl", "agent9527")).toEqual({
-      executablePath: path.join(binDir, "agent9527"),
+    expect(resolveNativePackage(vendorRoot, "x86_64-unknown-linux-musl", "codex")).toEqual({
+      executablePath: path.join(binDir, "codex"),
       pathDirs: [pathDir],
     });
   });
 
   it("prepends package PATH entries without duplicating them", async () => {
     const { prependPathDirs } = await import("../src/exec");
-    const pathDir = path.join(tmpdir(), "agent9527-path");
+    const pathDir = path.join(tmpdir(), "codex-path");
     const env = { PATH: `/usr/bin${path.delimiter}${pathDir}` };
 
     prependPathDirs(env, [pathDir]);
@@ -191,7 +191,7 @@ describe("Agent9527Exec", () => {
 
   it("preserves the Windows Path key when prepending package PATH entries", async () => {
     const { prependPathDirs } = await import("../src/exec");
-    const pathDir = path.join(tmpdir(), "agent9527-path");
+    const pathDir = path.join(tmpdir(), "codex-path");
     const env = { PATH: "/usr/bin", Path: `C\\Windows${path.delimiter}${pathDir}` };
 
     prependPathDirs(env, [pathDir], "win32");

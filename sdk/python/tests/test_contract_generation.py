@@ -8,9 +8,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERATED_TARGETS = [
-    Path("src/openai_agent9527/generated/notification_registry.py"),
-    Path("src/openai_agent9527/generated/v2_all.py"),
-    Path("src/openai_agent9527/api.py"),
+    Path("src/openai_codex/generated/notification_registry.py"),
+    Path("src/openai_codex/generated/v2_all.py"),
+    Path("src/openai_codex/api.py"),
 ]
 
 
@@ -40,9 +40,9 @@ def test_generated_files_are_up_to_date():
 
     # Regenerate contract artifacts via the pinned runtime package, not a local
     # app-server binary from the checkout or CI environment.
-    assert importlib.metadata.version("openai-agent9527-cli-bin") == "0.144.4"
+    assert importlib.metadata.version("openai-codex-cli-bin") == "0.144.4"
     env = os.environ.copy()
-    env.pop("AGENT9527_EXEC_PATH", None)
+    env.pop("CODEX_EXEC_PATH", None)
     python_bin = str(Path(sys.executable).parent)
     env["PATH"] = f"{python_bin}{os.pathsep}{env.get('PATH', '')}"
 

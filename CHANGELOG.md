@@ -1,1 +1,1 @@
-The changelog can be found on the [releases page](https://github.com/openai/agent9527/releases).
+The changelog can be found on the [releases page](https://github.com/openai/codex/releases).

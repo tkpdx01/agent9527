@@ -1,9 +1,0 @@
-load("//:defs.bzl", "agent9527_rust_crate")
-
-agent9527_rust_crate(
-    name = "linux-sandbox",
-    crate_name = "agent9527_linux_sandbox",
-    extra_binaries = [
-        "//agent9527-rs/bwrap:bwrap",
-    ],
-)

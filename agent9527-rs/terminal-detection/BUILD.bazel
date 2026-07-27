@@ -1,6 +1,0 @@
-load("//:defs.bzl", "agent9527_rust_crate")
-
-agent9527_rust_crate(
-    name = "terminal-detection",
-    crate_name = "agent9527_terminal_detection",
-)

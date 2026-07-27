@@ -12,12 +12,12 @@ from app_server_harness import (
     sse,
 )
 
-from openai_agent9527.generated.v2_all import (
+from openai_codex.generated.v2_all import (
     AgentMessageDeltaNotification,
     ItemCompletedNotification,
     MessagePhase,
 )
-from openai_agent9527.models import Notification
+from openai_codex.models import Notification
 
 TINY_PNG_BYTES = bytes(
     [

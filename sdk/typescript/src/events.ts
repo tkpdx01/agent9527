@@ -1,4 +1,4 @@
-// based on event types from agent9527-rs/exec/src/exec_events.rs
+// based on event types from codex-rs/exec/src/exec_events.rs
 
 import type { ThreadItem } from "./items";
 
@@ -72,7 +72,7 @@ export type ThreadErrorEvent = {
   message: string;
 };
 
-/** Top-level JSONL events emitted by agent9527 exec. */
+/** Top-level JSONL events emitted by codex exec. */
 export type ThreadEvent =
   | ThreadStartedEvent
   | TurnStartedEvent

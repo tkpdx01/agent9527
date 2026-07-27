@@ -1,17 +1,17 @@
 # Core crate ownership.
-/agent9527-rs/arg0/ @openai/agent9527-core-agent-team
-/agent9527-rs/agent9527-mcp/ @openai/agent9527-core-agent-team
-/agent9527-rs/core/ @openai/agent9527-core-agent-team
-/agent9527-rs/exec-server/ @openai/agent9527-core-agent-team
-/agent9527-rs/exec-server-protocol/ @openai/agent9527-core-agent-team
-/agent9527-rs/ext/extension-api/ @openai/agent9527-core-agent-team
-/agent9527-rs/prompts/ @openai/agent9527-core-agent-team
-/agent9527-rs/utils/path-uri/ @openai/agent9527-core-agent-team
+/codex-rs/arg0/ @openai/codex-core-agent-team
+/codex-rs/codex-mcp/ @openai/codex-core-agent-team
+/codex-rs/core/ @openai/codex-core-agent-team
+/codex-rs/exec-server/ @openai/codex-core-agent-team
+/codex-rs/exec-server-protocol/ @openai/codex-core-agent-team
+/codex-rs/ext/extension-api/ @openai/codex-core-agent-team
+/codex-rs/prompts/ @openai/codex-core-agent-team
+/codex-rs/utils/path-uri/ @openai/codex-core-agent-team
 
-# Keep macOS AKV signing changes reviewed by Agent9527 maintainers.
-/.github/actions/setup-akv-pkcs11-codesigning/ @openai/agent9527-core-agent-team
-/.github/scripts/macos-signing/ @openai/agent9527-core-agent-team
-/.github/workflows/rust-release.yml @openai/agent9527-core-agent-team
+# Keep macOS AKV signing changes reviewed by Codex maintainers.
+/.github/actions/setup-akv-pkcs11-codesigning/ @openai/codex-core-agent-team
+/.github/scripts/macos-signing/ @openai/codex-core-agent-team
+/.github/workflows/rust-release.yml @openai/codex-core-agent-team
 
 # Keep ownership changes reviewed by the same team.
-/.github/CODEOWNERS @openai/agent9527-core-agent-team
+/.github/CODEOWNERS @openai/codex-core-agent-team

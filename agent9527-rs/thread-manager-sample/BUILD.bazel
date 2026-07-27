@@ -1,6 +1,0 @@
-load("//:defs.bzl", "agent9527_rust_crate")
-
-agent9527_rust_crate(
-    name = "thread-manager-sample",
-    crate_name = "agent9527_thread_manager_sample",
-)

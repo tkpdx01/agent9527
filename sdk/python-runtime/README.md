@@ -1,9 +1,9 @@
-# Agent9527 CLI Runtime for Python SDK
+# Codex CLI Runtime for Python SDK
 
-Platform-specific runtime package consumed by the published `openai-agent9527`.
+Platform-specific runtime package consumed by the published `openai-codex`.
 
-This package is staged during release so the SDK can pin an exact Agent9527 CLI
+This package is staged during release so the SDK can pin an exact Codex CLI
 version without checking platform binaries into the repo.
 
-`openai-agent9527-cli-bin` is intentionally wheel-only. Do not build or publish an
+`openai-codex-cli-bin` is intentionally wheel-only. Do not build or publish an
 sdist for this package.

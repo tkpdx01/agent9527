@@ -1,7 +1,0 @@
-load("//:defs.bzl", "agent9527_rust_crate")
-
-agent9527_rust_crate(
-    name = "backend-client",
-    compile_data = glob(["tests/fixtures/**"]),
-    crate_name = "agent9527_backend_client",
-)

@@ -22,13 +22,13 @@ class MacosSigningEntitlementsTest(unittest.TestCase):
             ALLOW_JIT: True,
             ALLOW_UNSIGNED_EXECUTABLE_MEMORY: True,
         }
-        for binary in ["agent9527", "agent9527-app-server", "agent9527-code-mode-host"]:
+        for binary in ["codex", "codex-app-server", "codex-code-mode-host"]:
             with self.subTest(binary=binary):
                 self.assertEqual(self.load(binary), expected)
 
     def test_responses_proxy_keeps_existing_entitlements(self) -> None:
         self.assertEqual(
-            self.load("agent9527-responses-api-proxy"),
+            self.load("codex-responses-api-proxy"),
             {ALLOW_JIT: True},
         )
 

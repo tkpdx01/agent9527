@@ -26,9 +26,9 @@ export type {
 export { Thread } from "./thread";
 export type { RunResult, RunStreamedResult, Input, UserInput } from "./thread";
 
-export { Agent9527 } from "./agent9527";
+export { Codex } from "./codex";
 
-export type { Agent9527Options } from "./agent9527Options";
+export type { CodexOptions } from "./codexOptions";
 
 export type {
   ThreadOptions,

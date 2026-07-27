@@ -1,15 +1,15 @@
 {
-  "name": "@tkpdx01/agent9527-sdk",
+  "name": "@openai/codex-sdk",
   "version": "20260721.2.0",
-  "description": "TypeScript SDK for Agent9527 APIs.",
+  "description": "TypeScript SDK for Codex APIs.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tkpdx01/agent9527.git",
+    "url": "git+https://github.com/openai/codex.git",
     "directory": "sdk/typescript"
   },
   "keywords": [
     "openai",
-    "agent9527",
+    "codex",
     "sdk",
     "typescript",
     "api"

@@ -1,6 +1,6 @@
-import { Agent9527Options } from "./agent9527Options";
+import { CodexOptions } from "./codexOptions";
 import { ThreadEvent, ThreadError, Usage } from "./events";
-import { Agent9527Exec } from "./exec";
+import { CodexExec } from "./exec";
 import { ThreadItem } from "./items";
 import { ThreadOptions } from "./threadOptions";
 import { TurnOptions } from "./turnOptions";
@@ -39,8 +39,8 @@ export type Input = string | UserInput[];
 
 /** Represent a thread of conversation with the agent. One thread can have multiple consecutive turns. */
 export class Thread {
-  private _exec: Agent9527Exec;
-  private _options: Agent9527Options;
+  private _exec: CodexExec;
+  private _options: CodexOptions;
   private _id: string | null;
   private _threadOptions: ThreadOptions;
 
@@ -51,8 +51,8 @@ export class Thread {
 
   /* @internal */
   constructor(
-    exec: Agent9527Exec,
-    options: Agent9527Options,
+    exec: CodexExec,
+    options: CodexOptions,
     threadOptions: ThreadOptions,
     id: string | null = null,
   ) {

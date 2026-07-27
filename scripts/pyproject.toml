@@ -1,5 +1,5 @@
 [project]
-name = "agent9527-scripts"
+name = "codex-scripts"
 version = "20260721.2.0"
 requires-python = ">=3.10"
 dependencies = ["ruff>=0.15.8"]

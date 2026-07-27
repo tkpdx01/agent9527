@@ -1,6 +1,6 @@
 # Security Policy
 
-Thank you for helping us keep Agent9527 secure!
+Thank you for helping us keep Codex secure!
 
 ## Reporting Security Issues
 
@@ -12,6 +12,6 @@ Our security program is managed through Bugcrowd, and we ask that any validated 
 
 Our Vulnerability Program Guidelines are defined on our [Bugcrowd program page](https://bugcrowd.com/engagements/openai).
 
-## How to operate AGENT9527 safely
+## How to operate CODEX safely
 
-For details on Agent9527 security boundaries, including sandboxing, approvals, and network controls, see [Agent approvals & security](https://developers.openai.com/agent9527/agent-approvals-security).
+For details on Codex security boundaries, including sandboxing, approvals, and network controls, see [Agent approvals & security](https://developers.openai.com/codex/agent-approvals-security).

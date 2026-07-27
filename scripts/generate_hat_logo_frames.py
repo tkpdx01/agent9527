@@ -7,7 +7,7 @@ from pathlib import Path
 WIDTH = 38
 HEIGHT = 17
 FRAME_COUNT = 36
-FRAME_DIR = Path(__file__).resolve().parents[1] / "agent9527-rs" / "tui" / "frames" / "agent9527"
+FRAME_DIR = Path(__file__).resolve().parents[1] / "codex-rs" / "tui" / "frames" / "codex"
 BAYER_4X4 = (
     (0, 8, 2, 10),
     (12, 4, 14, 6),
@@ -121,7 +121,7 @@ def write_frames(frames: dict[Path, str]) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate the Agent9527 fedora TUI animation.")
+    parser = argparse.ArgumentParser(description="Generate the Codex fedora TUI animation.")
     parser.add_argument("--check", action="store_true", help="Verify generated frames are current.")
     args = parser.parse_args()
 

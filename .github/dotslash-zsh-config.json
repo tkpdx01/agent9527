@@ -1,30 +1,30 @@
 {
   "outputs": {
-    "agent9527-zsh": {
+    "codex-zsh": {
       "platforms": {
         "macos-aarch64": {
-          "name": "agent9527-zsh-aarch64-apple-darwin.tar.gz",
+          "name": "codex-zsh-aarch64-apple-darwin.tar.gz",
           "format": "tar.gz",
           "hash": "sha256",
-          "path": "agent9527-zsh/bin/zsh"
+          "path": "codex-zsh/bin/zsh"
         },
         "macos-x86_64": {
-          "name": "agent9527-zsh-x86_64-apple-darwin.tar.gz",
+          "name": "codex-zsh-x86_64-apple-darwin.tar.gz",
           "format": "tar.gz",
           "hash": "sha256",
-          "path": "agent9527-zsh/bin/zsh"
+          "path": "codex-zsh/bin/zsh"
         },
         "linux-x86_64": {
-          "name": "agent9527-zsh-x86_64-unknown-linux-musl.tar.gz",
+          "name": "codex-zsh-x86_64-unknown-linux-musl.tar.gz",
           "format": "tar.gz",
           "hash": "sha256",
-          "path": "agent9527-zsh/bin/zsh"
+          "path": "codex-zsh/bin/zsh"
         },
         "linux-aarch64": {
-          "name": "agent9527-zsh-aarch64-unknown-linux-musl.tar.gz",
+          "name": "codex-zsh-aarch64-unknown-linux-musl.tar.gz",
           "format": "tar.gz",
           "hash": "sha256",
-          "path": "agent9527-zsh/bin/zsh"
+          "path": "codex-zsh/bin/zsh"
         }
       }
     }

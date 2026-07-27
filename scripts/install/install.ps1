@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Release = $env:AGENT9527_RELEASE
+    [string]$Release = $env:CODEX_RELEASE
 )
 
 Set-StrictMode -Version Latest
@@ -11,7 +11,7 @@ if ([string]::IsNullOrWhiteSpace($Release)) {
     $Release = "latest"
 }
 
-$NonInteractive = $env:AGENT9527_NON_INTERACTIVE -match "^(?i:1|true|yes)$"
+$NonInteractive = $env:CODEX_NON_INTERACTIVE -match "^(?i:1|true|yes)$"
 
 function Write-Step {
     param(
@@ -72,7 +72,7 @@ function Assert-ValidReleaseVersion {
     )
 
     if ($Version -cne "latest" -and $Version -cnotmatch "^[0-9]+\.[0-9]+\.[0-9]+(?:-(?:alpha|beta)(?:\.[0-9]+)?)?$") {
-        throw "Invalid Agent9527 release version: $Version. Expected latest or x.y.z[-alpha[.N]|-beta[.N]]."
+        throw "Invalid Codex release version: $Version. Expected latest or x.y.z[-alpha[.N]|-beta[.N]]."
     }
 }
 
@@ -106,7 +106,7 @@ function Test-ArchiveDigest {
 
     $actualDigest = (Get-FileHash -LiteralPath $ArchivePath -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($actualDigest -ne $ExpectedDigest) {
-        throw "Downloaded Agent9527 archive checksum did not match expected digest. Expected $ExpectedDigest but got $actualDigest."
+        throw "Downloaded Codex archive checksum did not match expected digest. Expected $ExpectedDigest but got $actualDigest."
     }
 }
 
@@ -124,7 +124,7 @@ function Get-PackageArchiveDigest {
         }
     }
 
-    throw "Could not find SHA-256 digest for $AssetName in agent9527-package_SHA256SUMS."
+    throw "Could not find SHA-256 digest for $AssetName in codex-package_SHA256SUMS."
 }
 
 function Path-Contains {
@@ -207,22 +207,22 @@ function Resolve-Release {
 
     if ($normalizedVersion -eq "latest") {
         $requestedRelease = "latest"
-        $metadataUri = "https://api.github.com/repos/tkpdx01/agent9527/releases/latest"
+        $metadataUri = "https://api.github.com/repos/openai/codex/releases/latest"
     } else {
         $resolvedVersion = $normalizedVersion
         $requestedRelease = $resolvedVersion
-        $metadataUri = "https://api.github.com/repos/tkpdx01/agent9527/releases/tags/rust-v$resolvedVersion"
+        $metadataUri = "https://api.github.com/repos/openai/codex/releases/tags/rust-v$resolvedVersion"
     }
 
     try {
         $releaseMetadata = Invoke-RestMethod -Uri $metadataUri
     } catch {
-        throw "Could not fetch GitHub release metadata for Agent9527 $requestedRelease. GitHub API may be unavailable or rate limited. $($_.Exception.Message)"
+        throw "Could not fetch GitHub release metadata for Codex $requestedRelease. GitHub API may be unavailable or rate limited. $($_.Exception.Message)"
     }
 
     if ($normalizedVersion -eq "latest") {
         if (-not $releaseMetadata.tag_name) {
-            throw "Failed to resolve the latest Agent9527 release version."
+            throw "Failed to resolve the latest Codex release version."
         }
 
         $resolvedVersion = Normalize-Version -RawVersion $releaseMetadata.tag_name
@@ -237,15 +237,15 @@ function Resolve-Release {
 
 function Get-VersionFromBinary {
     param(
-        [string]$Agent9527Path
+        [string]$CodexPath
     )
 
-    if (-not (Test-Path -LiteralPath $Agent9527Path -PathType Leaf)) {
+    if (-not (Test-Path -LiteralPath $CodexPath -PathType Leaf)) {
         return $null
     }
 
     try {
-        $versionOutput = & $Agent9527Path --version 2>$null
+        $versionOutput = & $CodexPath --version 2>$null
     } catch {
         return $null
     }
@@ -262,12 +262,12 @@ function Get-CurrentInstalledVersion {
         [string]$StandaloneCurrentDir
     )
 
-    $standaloneVersion = Get-VersionFromBinary -Agent9527Path (Join-Path $StandaloneCurrentDir "bin\agent9527.exe")
+    $standaloneVersion = Get-VersionFromBinary -CodexPath (Join-Path $StandaloneCurrentDir "bin\codex.exe")
     if (-not [string]::IsNullOrWhiteSpace($standaloneVersion)) {
         return $standaloneVersion
     }
 
-    $standaloneVersion = Get-VersionFromBinary -Agent9527Path (Join-Path $StandaloneCurrentDir "agent9527.exe")
+    $standaloneVersion = Get-VersionFromBinary -CodexPath (Join-Path $StandaloneCurrentDir "codex.exe")
     if (-not [string]::IsNullOrWhiteSpace($standaloneVersion)) {
         return $standaloneVersion
     }
@@ -293,7 +293,7 @@ function Test-OldStandaloneBinLayout {
         return $false
     }
 
-    $requiredFiles = @("agent9527.exe", "rg.exe")
+    $requiredFiles = @("codex.exe", "rg.exe")
     foreach ($fileName in $requiredFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $VisibleBinDir $fileName) -PathType Leaf)) {
             return $false
@@ -301,11 +301,11 @@ function Test-OldStandaloneBinLayout {
     }
 
     $knownFiles = @(
-        "agent9527.exe",
+        "codex.exe",
         "rg.exe",
-        "agent9527-command-runner.exe",
-        "agent9527-windows-sandbox.exe",
-        "agent9527-windows-sandbox-setup.exe"
+        "codex-command-runner.exe",
+        "codex-windows-sandbox.exe",
+        "codex-windows-sandbox-setup.exe"
     )
     foreach ($child in Get-ChildItem -LiteralPath $VisibleBinDir -Force) {
         if ($child.PSIsContainer) {
@@ -329,9 +329,9 @@ function Move-OldStandaloneBinIfApproved {
         return $null
     }
 
-    Write-Step "We found an older Agent9527 install at $VisibleBinDir"
-    Write-WarningStep "To continue, Agent9527 needs to update the install at this path."
-    if (-not (Prompt-YesNo "Replace it with the current Agent9527 setup now?")) {
+    Write-Step "We found an older Codex install at $VisibleBinDir"
+    Write-WarningStep "To continue, Codex needs to update the install at this path."
+    if (-not (Prompt-YesNo "Replace it with the current Codex setup now?")) {
         throw "Cannot replace older standalone install without confirmation: $VisibleBinDir"
     }
 
@@ -342,7 +342,7 @@ function Move-OldStandaloneBinIfApproved {
 }
 
 function Add-JunctionSupportType {
-    if (([System.Management.Automation.PSTypeName]'Agent9527Installer.Junction').Type) {
+    if (([System.Management.Automation.PSTypeName]'CodexInstaller.Junction').Type) {
         return
     }
 
@@ -354,7 +354,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
 
-namespace Agent9527Installer
+namespace CodexInstaller
 {
     public static class Junction
     {
@@ -461,7 +461,7 @@ function Set-JunctionTarget {
     )
 
     Add-JunctionSupportType
-    [Agent9527Installer.Junction]::SetTarget($LinkPath, $TargetPath)
+    [CodexInstaller.Junction]::SetTarget($LinkPath, $TargetPath)
 }
 
 function Test-IsJunction {
@@ -536,12 +536,12 @@ function Test-PackageContentsAreComplete {
     }
 
     $expectedFiles = @(
-        "agent9527-package.json",
-        "bin\agent9527.exe",
-        "bin\agent9527-code-mode-host.exe",
-        "agent9527-path\rg.exe",
-        "agent9527-resources\agent9527-command-runner.exe",
-        "agent9527-resources\agent9527-windows-sandbox-setup.exe"
+        "codex-package.json",
+        "bin\codex.exe",
+        "bin\codex-code-mode-host.exe",
+        "codex-path\rg.exe",
+        "codex-resources\codex-command-runner.exe",
+        "codex-resources\codex-windows-sandbox-setup.exe"
     )
     foreach ($name in $expectedFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $PackageDir $name) -PathType Leaf)) {
@@ -562,10 +562,10 @@ function Test-LegacyPlatformNpmContentsAreComplete {
     }
 
     $expectedFiles = @(
-        "agent9527.exe",
-        "agent9527-resources\agent9527-command-runner.exe",
-        "agent9527-resources\agent9527-windows-sandbox-setup.exe",
-        "agent9527-resources\rg.exe"
+        "codex.exe",
+        "codex-resources\codex-command-runner.exe",
+        "codex-resources\codex-windows-sandbox-setup.exe",
+        "codex-resources\rg.exe"
     )
     foreach ($name in $expectedFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $PackageDir $name) -PathType Leaf)) {
@@ -596,15 +596,15 @@ function Test-ReleaseIsComplete {
             }
         }
         default {
-            throw "Unknown Agent9527 installer layout: $Layout"
+            throw "Unknown Codex installer layout: $Layout"
         }
     }
 
     return (Split-Path -Leaf $ReleaseDir) -eq "$ExpectedVersion-$ExpectedTarget"
 }
 
-function Get-ExistingAgent9527Command {
-    $existing = Get-Command agent9527 -ErrorAction SilentlyContinue
+function Get-ExistingCodexCommand {
+    $existing = Get-Command codex -ErrorAction SilentlyContinue
     if ($null -eq $existing) {
         return $null
     }
@@ -612,7 +612,7 @@ function Get-ExistingAgent9527Command {
     return $existing.Source
 }
 
-function Get-ExistingAgent9527Manager {
+function Get-ExistingCodexManager {
     param(
         [string]$ExistingPath,
         [string]$VisibleBinDir
@@ -642,14 +642,14 @@ function Get-ConflictingInstall {
         [string]$VisibleBinDir
     )
 
-    $existingPath = Get-ExistingAgent9527Command
-    $manager = Get-ExistingAgent9527Manager -ExistingPath $existingPath -VisibleBinDir $VisibleBinDir
+    $existingPath = Get-ExistingCodexCommand
+    $manager = Get-ExistingCodexManager -ExistingPath $existingPath -VisibleBinDir $VisibleBinDir
     if ($null -eq $manager) {
         return $null
     }
 
-    Write-Step "Detected existing $manager-managed Agent9527 at $existingPath"
-    Write-WarningStep "Multiple managed Agent9527 installs can be ambiguous because PATH order decides which one runs."
+    Write-Step "Detected existing $manager-managed Codex at $existingPath"
+    Write-WarningStep "Multiple managed Codex installs can be ambiguous because PATH order decides which one runs."
 
     return [PSCustomObject]@{
         Manager = $manager
@@ -669,33 +669,33 @@ function Maybe-HandleConflictingInstall {
     $manager = $Conflict.Manager
 
     $uninstallArgs = if ($manager -eq "bun") {
-        @("remove", "-g", "@tkpdx01/agent9527")
+        @("remove", "-g", "@openai/codex")
     } else {
-        @("uninstall", "-g", "@tkpdx01/agent9527")
+        @("uninstall", "-g", "@openai/codex")
     }
     $uninstallCommand = if ($manager -eq "bun") { "bun" } else { "npm" }
 
-    if (Prompt-YesNo "Uninstall the existing $manager-managed Agent9527 now?") {
+    if (Prompt-YesNo "Uninstall the existing $manager-managed Codex now?") {
         Write-Step "Running: $uninstallCommand $($uninstallArgs -join ' ')"
         try {
             & $uninstallCommand @uninstallArgs
         } catch {
-            Write-WarningStep "Failed to uninstall the existing $manager-managed Agent9527. Continuing with the standalone install."
+            Write-WarningStep "Failed to uninstall the existing $manager-managed Codex. Continuing with the standalone install."
         }
     } else {
-        Write-WarningStep "Leaving the existing $manager-managed Agent9527 installed. PATH order will determine which agent9527 runs."
+        Write-WarningStep "Leaving the existing $manager-managed Codex installed. PATH order will determine which codex runs."
     }
 }
 
-function Test-VisibleAgent9527Command {
+function Test-VisibleCodexCommand {
     param(
         [string]$VisibleBinDir
     )
 
-    $agent9527Command = Join-Path $VisibleBinDir "agent9527.exe"
-    & $agent9527Command --version *> $null
+    $codexCommand = Join-Path $VisibleBinDir "codex.exe"
+    & $codexCommand --version *> $null
     if ($LASTEXITCODE -ne 0) {
-        throw "Installed Agent9527 command failed verification: $agent9527Command --version"
+        throw "Installed Codex command failed verification: $codexCommand --version"
     }
 }
 
@@ -705,7 +705,7 @@ if ($env:OS -ne "Windows_NT") {
 }
 
 if (-not [Environment]::Is64BitOperatingSystem) {
-    Write-Error "Agent9527 requires a 64-bit version of Windows."
+    Write-Error "Codex requires a 64-bit version of Windows."
     exit 1
 }
 
@@ -730,21 +730,21 @@ switch ($architecture) {
     }
 }
 
-$agent9527Home = if ([string]::IsNullOrWhiteSpace($env:AGENT9527_HOME)) {
-    Join-Path $env:USERPROFILE ".agent9527"
+$codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
+    Join-Path $env:USERPROFILE ".codex"
 } else {
-    $env:AGENT9527_HOME
+    $env:CODEX_HOME
 }
-$standaloneRoot = Join-Path $agent9527Home "packages\standalone"
+$standaloneRoot = Join-Path $codexHome "packages\standalone"
 $releasesDir = Join-Path $standaloneRoot "releases"
 $currentDir = Join-Path $standaloneRoot "current"
 $lockPath = Join-Path $standaloneRoot "install.lock"
 
-$defaultVisibleBinDir = Join-Path $env:LOCALAPPDATA "Programs\OpenAI\Agent9527\bin"
-if ([string]::IsNullOrWhiteSpace($env:AGENT9527_INSTALL_DIR)) {
+$defaultVisibleBinDir = Join-Path $env:LOCALAPPDATA "Programs\OpenAI\Codex\bin"
+if ([string]::IsNullOrWhiteSpace($env:CODEX_INSTALL_DIR)) {
     $visibleBinDir = $defaultVisibleBinDir
 } else {
-    $visibleBinDir = $env:AGENT9527_INSTALL_DIR
+    $visibleBinDir = $env:CODEX_INSTALL_DIR
 }
 
 $currentVersion = Get-CurrentInstalledVersion -StandaloneCurrentDir $currentDir
@@ -755,11 +755,11 @@ $releaseName = "$resolvedVersion-$target"
 $releaseDir = Join-Path $releasesDir $releaseName
 
 if (-not [string]::IsNullOrWhiteSpace($currentVersion) -and $currentVersion -ne $resolvedVersion) {
-    Write-Step "Updating Agent9527 CLI from $currentVersion to $resolvedVersion"
+    Write-Step "Updating Codex CLI from $currentVersion to $resolvedVersion"
 } elseif (-not [string]::IsNullOrWhiteSpace($currentVersion)) {
-    Write-Step "Updating Agent9527 CLI"
+    Write-Step "Updating Codex CLI"
 } else {
-    Write-Step "Installing Agent9527 CLI"
+    Write-Step "Installing Codex CLI"
 }
 Write-Step "Detected platform: $platformLabel"
 Write-Step "Resolved version: $resolvedVersion"
@@ -767,22 +767,22 @@ Write-Step "Resolved version: $resolvedVersion"
 $conflictingInstall = Get-ConflictingInstall -VisibleBinDir $visibleBinDir
 $oldStandaloneBackup = $null
 
-$packageAsset = "agent9527-package-$target.tar.gz"
-$checksumAsset = "agent9527-package_SHA256SUMS"
+$packageAsset = "codex-package-$target.tar.gz"
+$checksumAsset = "codex-package_SHA256SUMS"
 $packageMetadata = Find-ReleaseAssetMetadata -AssetName $packageAsset -ReleaseMetadata $releaseMetadata
 $checksumMetadata = Find-ReleaseAssetMetadata -AssetName $checksumAsset -ReleaseMetadata $releaseMetadata
 $installLayout = "Package"
 if ($null -eq $packageMetadata -or $null -eq $checksumMetadata) {
-    $packageAsset = "agent9527-npm-$npmTag-$resolvedVersion.tgz"
+    $packageAsset = "codex-npm-$npmTag-$resolvedVersion.tgz"
     $packageMetadata = Find-ReleaseAssetMetadata -AssetName $packageAsset -ReleaseMetadata $releaseMetadata
     if ($null -ne $packageMetadata) {
         $installLayout = "LegacyPlatformNpm"
     } else {
-        throw "Could not find Agent9527 package or platform npm release assets for Agent9527 $resolvedVersion."
+        throw "Could not find Codex package or platform npm release assets for Codex $resolvedVersion."
     }
     $checksumMetadata = $null
 }
-$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("agent9527-install-" + [System.Guid]::NewGuid().ToString("N"))
+$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("codex-install-" + [System.Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
 
 try {
@@ -798,7 +798,7 @@ try {
             $checksumPath = Join-Path $tempDir $checksumAsset
             $stagingDir = Join-Path $releasesDir ".staging.$releaseName.$PID"
 
-            Write-Step "Downloading Agent9527 CLI"
+            Write-Step "Downloading Codex CLI"
             if ($installLayout -eq "Package") {
                 Invoke-WebRequest -Uri $checksumMetadata.Url -OutFile $checksumPath
                 Test-ArchiveDigest -ArchivePath $checksumPath -ExpectedDigest $checksumMetadata.Sha256
@@ -817,7 +817,7 @@ try {
             if ($installLayout -eq "Package") {
                 tar -xzf $archivePath -C $stagingDir
                 if (-not (Test-PackageContentsAreComplete -PackageDir $stagingDir)) {
-                    throw "Downloaded Agent9527 package archive did not contain the expected package layout."
+                    throw "Downloaded Codex package archive did not contain the expected package layout."
                 }
             } else {
                 $extractDir = Join-Path $tempDir "extract"
@@ -825,13 +825,13 @@ try {
                 tar -xzf $archivePath -C $extractDir
 
                 $vendorRoot = Join-Path $extractDir "package/vendor/$target"
-                $resourcesDir = Join-Path $stagingDir "agent9527-resources"
+                $resourcesDir = Join-Path $stagingDir "codex-resources"
                 New-Item -ItemType Directory -Force -Path $resourcesDir | Out-Null
                 $copyMap = @{
-                    "agent9527/agent9527.exe" = "agent9527.exe"
-                    "agent9527/agent9527-command-runner.exe" = "agent9527-resources\agent9527-command-runner.exe"
-                    "agent9527/agent9527-windows-sandbox-setup.exe" = "agent9527-resources\agent9527-windows-sandbox-setup.exe"
-                    "path/rg.exe" = "agent9527-resources\rg.exe"
+                    "codex/codex.exe" = "codex.exe"
+                    "codex/codex-command-runner.exe" = "codex-resources\codex-command-runner.exe"
+                    "codex/codex-windows-sandbox-setup.exe" = "codex-resources\codex-windows-sandbox-setup.exe"
+                    "path/rg.exe" = "codex-resources\rg.exe"
                 }
 
                 foreach ($relativeSource in $copyMap.Keys) {
@@ -839,7 +839,7 @@ try {
                 }
 
                 if (-not (Test-LegacyPlatformNpmContentsAreComplete -PackageDir $stagingDir)) {
-                    throw "Downloaded Agent9527 npm archive did not contain the expected legacy platform package layout."
+                    throw "Downloaded Codex npm archive did not contain the expected legacy platform package layout."
                 }
             }
 
@@ -862,7 +862,7 @@ try {
         $oldStandaloneBackup = Move-OldStandaloneBinIfApproved -VisibleBinDir $visibleBinDir -DefaultVisibleBinDir $defaultVisibleBinDir
         try {
             Ensure-Junction -LinkPath $visibleBinDir -TargetPath $currentBinDir -InstallerOwnedTargetPrefix $standaloneRoot
-            Test-VisibleAgent9527Command -VisibleBinDir $visibleBinDir
+            Test-VisibleCodexCommand -VisibleBinDir $visibleBinDir
         } catch {
             if ($null -ne $oldStandaloneBackup -and (Test-Path -LiteralPath $oldStandaloneBackup)) {
                 if (Test-Path -LiteralPath $visibleBinDir) {
@@ -917,12 +917,12 @@ if ($prioritizeVisibleBin) {
     }
 }
 
-Write-Step "Current PowerShell session: agent9527"
-Write-Step "Future PowerShell windows: open a new PowerShell window and run: agent9527"
-Write-Host "Agent9527 CLI $resolvedVersion installed successfully."
+Write-Step "Current PowerShell session: codex"
+Write-Step "Future PowerShell windows: open a new PowerShell window and run: codex"
+Write-Host "Codex CLI $resolvedVersion installed successfully."
 
-$agent9527Command = Join-Path $visibleBinDir "agent9527.exe"
-if (Prompt-YesNo "Start Agent9527 now?") {
-    Write-Step "Launching Agent9527"
-    & $agent9527Command
+$codexCommand = Join-Path $visibleBinDir "codex.exe"
+if (Prompt-YesNo "Start Codex now?") {
+    Write-Step "Launching Codex"
+    & $codexCommand
 }

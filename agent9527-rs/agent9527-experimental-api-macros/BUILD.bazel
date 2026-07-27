@@ -1,7 +1,0 @@
-load("//:defs.bzl", "agent9527_rust_crate")
-
-agent9527_rust_crate(
-    name = "agent9527-experimental-api-macros",
-    crate_name = "agent9527_experimental_api_macros",
-    proc_macro = True,
-)

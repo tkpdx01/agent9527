@@ -1,3 +1,3 @@
 ## Sandbox & approvals
 
-For information about Agent9527 sandboxing and approvals, see [this documentation](https://developers.openai.com/agent9527/security).
+For information about Codex sandboxing and approvals, see [this documentation](https://developers.openai.com/codex/security).

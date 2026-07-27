@@ -6,7 +6,7 @@ inputs:
     required: true
   binaries:
     description: Space-delimited binary basenames to sign.
-    default: "agent9527 agent9527-responses-api-proxy agent9527-windows-sandbox-setup agent9527-command-runner"
+    default: "codex codex-responses-api-proxy codex-windows-sandbox-setup codex-command-runner"
   client-id:
     description: Azure Trusted Signing client ID.
     required: true

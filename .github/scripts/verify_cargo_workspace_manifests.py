@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-"""Verify that agent9527-rs Cargo manifests follow workspace manifest policy.
+"""Verify that codex-rs Cargo manifests follow workspace manifest policy.
 
 Checks:
 - Crates inherit `[workspace.package]` metadata.
 - Crates opt into `[lints] workspace = true`.
-- Crate names follow the agent9527-rs directory naming conventions.
+- Crate names follow the codex-rs directory naming conventions.
 - Workspace manifests do not introduce workspace crate feature toggles.
 """
 
@@ -17,17 +17,17 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CARGO_RS_ROOT = ROOT / "agent9527-rs"
+CARGO_RS_ROOT = ROOT / "codex-rs"
 WORKSPACE_PACKAGE_FIELDS = ("version", "edition", "license")
 TOP_LEVEL_NAME_EXCEPTIONS = {
-    "windows-sandbox-rs": "agent9527-windows-sandbox",
+    "windows-sandbox-rs": "codex-windows-sandbox",
 }
 UTILITY_NAME_EXCEPTIONS = {
-    "path-utils": "agent9527-utils-path",
+    "path-utils": "codex-utils-path",
 }
 MANIFEST_FEATURE_EXCEPTIONS = {
-    "agent9527-rs/code-mode/Cargo.toml": {"sandbox": ("v8/v8_enable_sandbox",)},
-    "agent9527-rs/v8-poc/Cargo.toml": {"sandbox": ("v8/v8_enable_sandbox",)},
+    "codex-rs/code-mode/Cargo.toml": {"sandbox": ("v8/v8_enable_sandbox",)},
+    "codex-rs/v8-poc/Cargo.toml": {"sandbox": ("v8/v8_enable_sandbox",)},
 }
 OPTIONAL_DEPENDENCY_EXCEPTIONS = set()
 INTERNAL_DEPENDENCY_FEATURE_EXCEPTIONS = {}
@@ -61,7 +61,7 @@ def main() -> int:
         return 0
 
     print(
-        "Cargo manifests under agent9527-rs must inherit workspace package metadata, "
+        "Cargo manifests under codex-rs must inherit workspace package metadata, "
         "opt into workspace lints, and avoid introducing new workspace crate "
         "features."
     )
@@ -72,7 +72,7 @@ def main() -> int:
         "permutations we want to avoid."
     )
     print(
-        "Cargo only applies `agent9527-rs/Cargo.toml` `[workspace.lints.clippy]` "
+        "Cargo only applies `codex-rs/Cargo.toml` `[workspace.lints.clippy]` "
         "entries to a crate when that crate declares:"
     )
     print()
@@ -85,8 +85,8 @@ def main() -> int:
     )
     print()
     print(
-        "Package-name checks apply to `agent9527-rs/<crate>/Cargo.toml` and "
-        "`agent9527-rs/utils/<crate>/Cargo.toml`."
+        "Package-name checks apply to `codex-rs/<crate>/Cargo.toml` and "
+        "`codex-rs/utils/<crate>/Cargo.toml`."
     )
     print(
         "Workspace crate features are forbidden; add a targeted exception here "
@@ -212,11 +212,11 @@ def expected_package_name(path: Path) -> str | None:
         directory = parts[0]
         return TOP_LEVEL_NAME_EXCEPTIONS.get(
             directory,
-            directory if directory.startswith("agent9527-") else f"agent9527-{directory}",
+            directory if directory.startswith("codex-") else f"codex-{directory}",
         )
     if len(parts) == 3 and parts[0] == "utils" and parts[2] == "Cargo.toml":
         directory = parts[1]
-        return UTILITY_NAME_EXCEPTIONS.get(directory, f"agent9527-utils-{directory}")
+        return UTILITY_NAME_EXCEPTIONS.get(directory, f"codex-utils-{directory}")
     return None
 
 

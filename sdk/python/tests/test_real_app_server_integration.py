@@ -21,10 +21,10 @@ if root_str not in sys.path:
 
 from _runtime_setup import ensure_runtime_package_installed, pinned_runtime_version
 
-RUN_REAL_AGENT9527_TESTS = os.environ.get("RUN_REAL_AGENT9527_TESTS") == "1"
+RUN_REAL_CODEX_TESTS = os.environ.get("RUN_REAL_CODEX_TESTS") == "1"
 pytestmark = pytest.mark.skipif(
-    not RUN_REAL_AGENT9527_TESTS,
-    reason="set RUN_REAL_AGENT9527_TESTS=1 to run real Agent9527 integration coverage",
+    not RUN_REAL_CODEX_TESTS,
+    reason="set RUN_REAL_CODEX_TESTS=1 to run real Codex integration coverage",
 )
 
 # 11_cli_mini_app is interactive; we still run it by feeding one prompt, then '/exit'.
@@ -96,7 +96,7 @@ def runtime_env(tmp_path_factory: pytest.TempPathFactory) -> PreparedRuntimeEnv:
 
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join([str(isolated_site), str(ROOT / "src")])
-    env["AGENT9527_PYTHON_SDK_DIR"] = str(ROOT)
+    env["CODEX_PYTHON_SDK_DIR"] = str(ROOT)
     return PreparedRuntimeEnv(python=python, env=env, runtime_version=runtime_version)
 
 
@@ -205,13 +205,13 @@ def test_real_initialize_and_model_list(runtime_env: PreparedRuntimeEnv) -> None
         textwrap.dedent(
             """
             import json
-            from openai_agent9527 import Agent9527
+            from openai_codex import Codex
 
-            with Agent9527() as agent9527:
-                models = agent9527.models(include_hidden=True)
-                server = agent9527.metadata.serverInfo
+            with Codex() as codex:
+                models = codex.models(include_hidden=True)
+                server = codex.metadata.serverInfo
                 print(json.dumps({
-                    "user_agent": agent9527.metadata.userAgent,
+                    "user_agent": codex.metadata.userAgent,
                     "server_name": None if server is None else server.name,
                     "server_version": None if server is None else server.version,
                     "model_count": len(models.data),
@@ -234,10 +234,10 @@ def test_real_thread_and_turn_start_smoke(runtime_env: PreparedRuntimeEnv) -> No
         textwrap.dedent(
             """
             import json
-            from openai_agent9527 import Agent9527
+            from openai_codex import Codex
 
-            with Agent9527() as agent9527:
-                thread = agent9527.thread_start(
+            with Codex() as codex:
+                thread = codex.thread_start(
                     model="gpt-5.4",
                     config={"model_reasoning_effort": "high"},
                 )
@@ -266,10 +266,10 @@ def test_real_thread_run_convenience_smoke(runtime_env: PreparedRuntimeEnv) -> N
         textwrap.dedent(
             """
             import json
-            from openai_agent9527 import Agent9527
+            from openai_codex import Codex
 
-            with Agent9527() as agent9527:
-                thread = agent9527.thread_start(
+            with Codex() as codex:
+                thread = codex.thread_start(
                     model="gpt-5.4",
                     config={"model_reasoning_effort": "high"},
                 )
@@ -296,10 +296,10 @@ def test_real_quickstart_style_flow_smoke(runtime_env: PreparedRuntimeEnv) -> No
         textwrap.dedent(
             """
             import json
-            from openai_agent9527 import Agent9527
+            from openai_codex import Codex
 
-            with Agent9527() as agent9527:
-                thread = agent9527.thread_start()
+            with Codex() as codex:
+                thread = codex.thread_start()
                 result = thread.run("Say hello in one sentence.")
                 print(json.dumps({
                     "thread_id": thread.id,
@@ -331,11 +331,11 @@ def test_real_async_thread_turn_usage_and_ids_smoke(
             """
             import asyncio
             import json
-            from openai_agent9527 import AsyncAgent9527
+            from openai_codex import AsyncCodex
 
             async def main():
-                async with AsyncAgent9527() as agent9527:
-                    thread = await agent9527.thread_start(
+                async with AsyncCodex() as codex:
+                    thread = await codex.thread_start(
                         model="gpt-5.4",
                         config={"model_reasoning_effort": "high"},
                     )
@@ -369,11 +369,11 @@ def test_real_async_thread_run_convenience_smoke(
             """
             import asyncio
             import json
-            from openai_agent9527 import AsyncAgent9527
+            from openai_codex import AsyncCodex
 
             async def main():
-                async with AsyncAgent9527() as agent9527:
-                    thread = await agent9527.thread_start(
+                async with AsyncCodex() as codex:
+                    thread = await codex.thread_start(
                         model="gpt-5.4",
                         config={"model_reasoning_effort": "high"},
                     )
@@ -458,10 +458,10 @@ def test_real_streaming_smoke_turn_completed(runtime_env: PreparedRuntimeEnv) ->
         textwrap.dedent(
             """
             import json
-            from openai_agent9527 import Agent9527
+            from openai_codex import Codex
 
-            with Agent9527() as agent9527:
-                thread = agent9527.thread_start(
+            with Codex() as codex:
+                thread = codex.thread_start(
                     model="gpt-5.4",
                     config={"model_reasoning_effort": "high"},
                 )
@@ -491,10 +491,10 @@ def test_real_turn_interrupt_smoke(runtime_env: PreparedRuntimeEnv) -> None:
         textwrap.dedent(
             """
             import json
-            from openai_agent9527 import Agent9527
+            from openai_codex import Codex
 
-            with Agent9527() as agent9527:
-                thread = agent9527.thread_start(
+            with Codex() as codex:
+                thread = codex.thread_start(
                     model="gpt-5.4",
                     config={"model_reasoning_effort": "high"},
                 )

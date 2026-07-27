@@ -11,17 +11,17 @@ ensure_local_sdk_src()
 
 import asyncio
 
-from openai_agent9527 import AsyncAgent9527
+from openai_codex import AsyncCodex
 
 
 async def main() -> None:
-    async with AsyncAgent9527(config=runtime_config()) as agent9527:
+    async with AsyncCodex(config=runtime_config()) as codex:
         # Browser login returns a live handle. Open `auth_url` and await `wait()`
         # in a real app; this example cancels immediately so it stays non-blocking.
-        login = await agent9527.login_chatgpt()
+        login = await codex.login_chatgpt()
         canceled = await login.cancel()
         completed = await login.wait()
-        account = await agent9527.account()
+        account = await codex.account()
 
         print("login.id:", login.login_id)
         print("login.auth_url:", login.auth_url)

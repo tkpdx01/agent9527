@@ -12,10 +12,10 @@ ensure_local_sdk_src()
 
 import asyncio
 
-from openai_agent9527 import (
-    AsyncAgent9527,
+from openai_codex import (
+    AsyncCodex,
 )
-from openai_agent9527.types import (
+from openai_codex.types import (
     Personality,
     ReasoningSummary,
 )
@@ -42,8 +42,8 @@ PROMPT = (
 
 
 async def main() -> None:
-    async with AsyncAgent9527(config=runtime_config()) as agent9527:
-        thread = await agent9527.thread_start(
+    async with AsyncCodex(config=runtime_config()) as codex:
+        thread = await codex.thread_start(
             model="gpt-5.4", config={"model_reasoning_effort": "high"}
         )
 

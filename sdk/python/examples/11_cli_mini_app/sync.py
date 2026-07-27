@@ -9,15 +9,15 @@ from _bootstrap import ensure_local_sdk_src, runtime_config
 
 ensure_local_sdk_src()
 
-from openai_agent9527 import (
-    Agent9527,
+from openai_codex import (
+    Codex,
 )
-from openai_agent9527.types import (
+from openai_codex.types import (
     ThreadTokenUsageUpdatedNotification,
     TurnCompletedNotification,
 )
 
-print("Agent9527 mini CLI. Type /exit to quit.")
+print("Codex mini CLI. Type /exit to quit.")
 
 
 def _format_usage(usage: object) -> str:
@@ -30,8 +30,8 @@ def _format_usage(usage: object) -> str:
     )
 
 
-with Agent9527(config=runtime_config()) as agent9527:
-    thread = agent9527.thread_start(model="gpt-5.4", config={"model_reasoning_effort": "high"})
+with Codex(config=runtime_config()) as codex:
+    thread = codex.thread_start(model="gpt-5.4", config={"model_reasoning_effort": "high"})
     print("Thread:", thread.id)
 
     while True:
