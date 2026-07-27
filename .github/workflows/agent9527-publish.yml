@@ -155,6 +155,29 @@ jobs:
           fi
           python scripts/build_agent9527_package.py "${args[@]}"
 
+      - name: Strip packaged release binaries
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          package_bin_dir="${RUNNER_TEMP}/agent9527-vendor/${TARGET}/bin"
+          case "$RUNNER_OS" in
+            Linux) strip_args=(--strip-debug --strip-unneeded) ;;
+            macOS) strip_args=(-S -x) ;;
+            *) echo "Unsupported runner OS for stripping: ${RUNNER_OS}" >&2; exit 1 ;;
+          esac
+
+          for binary in agent9527 agent9527-code-mode-host; do
+            binary_path="${package_bin_dir}/${binary}"
+            if [[ ! -f "$binary_path" ]]; then
+              echo "Missing packaged binary: ${binary_path}" >&2
+              exit 1
+            fi
+            strip "${strip_args[@]}" "$binary_path"
+          done
+
       - name: Stage platform npm tarball
         shell: bash
         env:
@@ -256,6 +279,44 @@ jobs:
           fi
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Strip Linux binaries in reused npm tarballs
+        if: inputs.source_run_id != ''
+        shell: bash
+        env:
+          VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          set -euo pipefail
+          for npm_arch in x64 arm64; do
+            case "$npm_arch" in
+              x64) target="x86_64-unknown-linux-musl" ;;
+              arm64) target="aarch64-unknown-linux-musl" ;;
+              *) echo "Unsupported npm architecture: ${npm_arch}" >&2; exit 1 ;;
+            esac
+
+            tarball="dist/npm/agent9527-npm-linux-${npm_arch}-${VERSION}.tgz"
+            if [[ ! -f "$tarball" ]]; then
+              echo "Missing npm tarball: ${tarball}" >&2
+              exit 1
+            fi
+
+            staging_root="$(mktemp -d "${RUNNER_TEMP}/agent9527-strip.XXXXXX")"
+            tar -xzf "$tarball" -C "$staging_root"
+            package_bin_dir="${staging_root}/package/vendor/${target}/bin"
+            for binary in agent9527 agent9527-code-mode-host; do
+              binary_path="${package_bin_dir}/${binary}"
+              if [[ ! -f "$binary_path" ]]; then
+                echo "Missing packaged binary: ${binary_path}" >&2
+                exit 1
+              fi
+              strip --strip-debug --strip-unneeded "$binary_path"
+            done
+
+            tar -C "$staging_root" -czf "${tarball}.new" package
+            mv "${tarball}.new" "$tarball"
+            rm -rf -- "$staging_root"
+            du -h "$tarball"
+          done
 
       - name: Create or update GitHub release
         shell: bash
