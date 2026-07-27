@@ -236,6 +236,10 @@ fn insert_filesystem_permission_toml(
     entries: &mut BTreeMap<String, FilesystemPermissionToml>,
     entry: FileSystemSandboxEntry,
 ) {
+    if entry.skips_missing_path() {
+        return;
+    }
+
     match entry.path {
         FileSystemPath::Path { path } => {
             entries.insert(
@@ -527,6 +531,7 @@ fn compile_filesystem_permission(
             entries.push(FileSystemSandboxEntry {
                 path: compile_filesystem_access_path(path, *access, startup_warnings)?,
                 access: *access,
+                missing_path_behavior: None,
             });
         }
         FilesystemPermissionToml::Scoped(scoped_entries) => {
@@ -545,6 +550,7 @@ fn compile_filesystem_permission(
                             pattern: compile_scoped_filesystem_pattern(path, subpath, *access)?,
                         },
                         access: *access,
+                        missing_path_behavior: None,
                     };
                     entries.push(entry);
                 } else {
@@ -552,6 +558,7 @@ fn compile_filesystem_permission(
                     entries.push(FileSystemSandboxEntry {
                         path: compile_scoped_filesystem_path(path, subpath, startup_warnings)?,
                         access: *access,
+                        missing_path_behavior: None,
                     });
                 }
             }

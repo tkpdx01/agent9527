@@ -1,6 +1,4 @@
 use codex_app_server_protocol::JSONRPCError;
-use codex_app_server_protocol::JSONRPCNotification;
-use codex_app_server_protocol::JSONRPCResponse;
 use codex_app_server_protocol::RequestId;
 use codex_app_server_protocol::SandboxPolicy;
 use codex_app_server_protocol::ThreadReadParams;
@@ -26,7 +24,6 @@ use app_test_support::write_models_cache;
 use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
-use std::collections::BTreeMap;
 use std::time::Duration;
 use tempfile::TempDir;
 use tokio::time::timeout;
@@ -46,9 +43,8 @@ async fn thread_settings_update_emits_notification_and_updates_future_turns() ->
 
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let thread = start_thread(&mut mcp).await?.thread;
 
     send_thread_settings_update(
@@ -113,9 +109,8 @@ async fn thread_settings_update_cwd_retargets_default_environment() -> Result<()
 
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_thread_start_request(ThreadStartParams {
             cwd: Some(initial_workspace.path().to_string_lossy().into_owned()),
@@ -123,12 +118,8 @@ async fn thread_settings_update_cwd_retargets_default_environment() -> Result<()
             ..Default::default()
         })
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let thread = to_response::<ThreadStartResponse>(response)?.thread;
+    let ThreadStartResponse { thread, .. } =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     send_thread_settings_update(
         &mut mcp,
@@ -185,9 +176,8 @@ async fn thread_settings_update_while_turn_is_active_emits_notification() -> Res
 
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let thread = start_thread(&mut mcp).await?.thread;
     start_text_turn(&mut mcp, thread.id.clone()).await?;
     timeout(
@@ -231,9 +221,8 @@ async fn thread_settings_update_null_service_tier_uses_default() -> Result<()> {
 
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let thread = start_thread(&mut mcp).await?.thread;
 
     send_thread_settings_update(
@@ -300,9 +289,8 @@ async fn thread_settings_update_rejects_sandbox_policy_with_permissions() -> Res
 
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let thread = start_thread(&mut mcp).await?.thread;
 
     let request_id = mcp
@@ -337,9 +325,8 @@ async fn turn_start_settings_override_emits_thread_settings_updated() -> Result<
 
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let thread = start_thread(&mut mcp).await?.thread;
     timeout(
         DEFAULT_TIMEOUT,
@@ -359,12 +346,8 @@ async fn turn_start_settings_override_emits_thread_settings_updated() -> Result<
             ..Default::default()
         })
         .await?;
-    let turn_response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(turn_request_id)),
-    )
-    .await??;
-    let TurnStartResponse { turn } = to_response(turn_response)?;
+    let TurnStartResponse { turn } =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(turn_request_id)).await??;
     assert!(!turn.id.is_empty());
 
     let updated = read_thread_settings_updated(&mut mcp).await?;
@@ -384,12 +367,8 @@ async fn send_thread_settings_update(
     params: ThreadSettingsUpdateParams,
 ) -> Result<()> {
     let request_id = mcp.send_thread_settings_update_request(params).await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let _: ThreadSettingsUpdateResponse = to_response(response)?;
+    let _: ThreadSettingsUpdateResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
     Ok(())
 }
 
@@ -404,12 +383,8 @@ async fn start_text_turn(mcp: &mut TestAppServer, thread_id: String) -> Result<(
             ..Default::default()
         })
         .await?;
-    let turn_response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(turn_request_id)),
-    )
-    .await??;
-    let TurnStartResponse { turn } = to_response(turn_response)?;
+    let TurnStartResponse { turn } =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(turn_request_id)).await??;
     assert!(!turn.id.is_empty());
     Ok(())
 }
@@ -421,12 +396,7 @@ async fn start_thread(mcp: &mut TestAppServer) -> Result<ThreadStartResponse> {
             ..Default::default()
         })
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    to_response(response)
+    timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await?
 }
 
 async fn read_thread_with_turns(
@@ -439,26 +409,17 @@ async fn read_thread_with_turns(
             include_turns: true,
         })
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    to_response(response)
+    timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await?
 }
 
 async fn read_thread_settings_updated(
     mcp: &mut TestAppServer,
 ) -> Result<ThreadSettingsUpdatedNotification> {
-    let notification: JSONRPCNotification = timeout(
+    timeout(
         DEFAULT_TIMEOUT,
-        mcp.read_stream_until_notification_message("thread/settings/updated"),
+        mcp.read_notification("thread/settings/updated"),
     )
-    .await??;
-    let params = notification
-        .params
-        .context("thread/settings/updated should include params")?;
-    Ok(serde_json::from_value(params)?)
+    .await?
 }
 
 async fn received_response_bodies(server: &wiremock::MockServer) -> Result<Vec<Value>> {
@@ -484,13 +445,8 @@ fn service_tier_model_and_tier_id() -> Result<(String, String)> {
 }
 
 fn create_config_toml(codex_home: &std::path::Path, server_uri: &str) -> std::io::Result<()> {
-    write_mock_responses_config_toml(
-        codex_home,
-        server_uri,
-        &BTreeMap::default(),
-        /*auto_compact_limit*/ 200_000,
-        /*requires_openai_auth*/ None,
-        "mock_provider",
-        "compact",
-    )
+    MockResponsesConfig::new(server_uri)
+        .with_root_config("compact_prompt = \"compact\"\nmodel_auto_compact_token_limit = 200000")
+        .with_provider_config("supports_websockets = false")
+        .write(codex_home)
 }

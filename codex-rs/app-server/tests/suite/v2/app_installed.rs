@@ -19,7 +19,6 @@ use codex_config::types::AuthCredentialsStoreMode;
 use anyhow::Result;
 use app_test_support::ChatGptAuthFixture;
 use app_test_support::TestAppServer;
-use app_test_support::to_response;
 use app_test_support::write_chatgpt_auth;
 use axum::Json;
 use axum::Router;
@@ -202,12 +201,8 @@ async fn installed_apps_thread_id_uses_effective_thread_config() -> Result<()> {
             ..Default::default()
         })
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        app_server.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let ThreadStartResponse { thread, .. } = to_response(response)?;
+    let ThreadStartResponse { thread, .. } =
+        timeout(DEFAULT_TIMEOUT, app_server.read_response(request_id)).await??;
 
     let request_id = app_server
         .send_apps_installed_request(AppsInstalledParams {
@@ -215,12 +210,8 @@ async fn installed_apps_thread_id_uses_effective_thread_config() -> Result<()> {
             force_refresh: false,
         })
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        app_server.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: AppsInstalledResponse = to_response(response)?;
+    let response: AppsInstalledResponse =
+        timeout(DEFAULT_TIMEOUT, app_server.read_response(request_id)).await??;
     let alpha = expected
         .apps
         .iter_mut()
@@ -261,13 +252,11 @@ async fn installed_apps_failed_force_refresh_retains_previous_snapshot() -> Resu
 }
 
 async fn start_app_server(codex_home: &Path) -> Result<TestAppServer> {
-    let mut app_server = TestAppServer::builder()
+    TestAppServer::builder()
         .with_codex_home(codex_home)
         .without_managed_config()
-        .build()
-        .await?;
-    timeout(DEFAULT_TIMEOUT, app_server.initialize()).await??;
-    Ok(app_server)
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
+        .await
 }
 
 async fn send_installed_request(
@@ -280,12 +269,7 @@ async fn send_installed_request(
             force_refresh,
         })
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        app_server.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    to_response(response)
+    timeout(DEFAULT_TIMEOUT, app_server.read_response(request_id)).await?
 }
 
 fn configured_codex_home(base_url: &str) -> Result<TempDir> {

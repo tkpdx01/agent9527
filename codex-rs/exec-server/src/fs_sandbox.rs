@@ -209,12 +209,12 @@ fn add_helper_runtime_permissions(
     cwd: &std::path::Path,
 ) {
     if !file_system_policy.has_full_disk_read_access() {
-        let minimal_read_entry = FileSystemSandboxEntry {
-            path: FileSystemPath::Special {
+        let minimal_read_entry = FileSystemSandboxEntry::new(
+            FileSystemPath::Special {
                 value: FileSystemSpecialPath::Minimal,
             },
-            access: FileSystemAccessMode::Read,
-        };
+            FileSystemAccessMode::Read,
+        );
         if !file_system_policy.entries.contains(&minimal_read_entry) {
             file_system_policy.entries.push(minimal_read_entry);
         }
@@ -225,12 +225,12 @@ fn add_helper_runtime_permissions(
             continue;
         }
 
-        file_system_policy.entries.push(FileSystemSandboxEntry {
-            path: FileSystemPath::Path {
+        file_system_policy.entries.push(FileSystemSandboxEntry::new(
+            FileSystemPath::Path {
                 path: helper_read_root.clone(),
             },
-            access: FileSystemAccessMode::Read,
-        });
+            FileSystemAccessMode::Read,
+        ));
     }
 }
 
@@ -623,6 +623,7 @@ mod tests {
                 value: FileSystemSpecialPath::project_roots(/*subpath*/ None),
             },
             access: FileSystemAccessMode::Write,
+            missing_path_behavior: None,
         }]);
         let sandbox_context =
             codex_file_system::FileSystemSandboxContext::from_permission_profile(
@@ -722,6 +723,7 @@ mod tests {
         FileSystemSandboxEntry {
             path: FileSystemPath::Path { path },
             access,
+            missing_path_behavior: None,
         }
     }
 
@@ -732,6 +734,7 @@ mod tests {
         FileSystemSandboxEntry {
             path: FileSystemPath::Special { value },
             access,
+            missing_path_behavior: None,
         }
     }
 }

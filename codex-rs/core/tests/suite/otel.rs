@@ -1576,7 +1576,7 @@ async fn handle_shell_command_user_denies_records_tool_decision() {
         .submit(Op::ExecApproval {
             id: approval.effective_approval_id(),
             turn_id: None,
-            decision: ReviewDecision::Denied,
+            decision: ReviewDecision::denied("rejected by user"),
         })
         .await
         .unwrap();
@@ -1721,7 +1721,7 @@ async fn handle_sandbox_error_user_denies_records_tool_decision() {
         .submit(Op::ExecApproval {
             id: approval.effective_approval_id(),
             turn_id: None,
-            decision: ReviewDecision::Denied,
+            decision: ReviewDecision::denied("rejected by user"),
         })
         .await
         .unwrap();

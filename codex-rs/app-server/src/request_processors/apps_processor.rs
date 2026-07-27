@@ -1,8 +1,10 @@
 use super::*;
 use crate::app_info::app_info_to_api;
-use crate::app_info::connector_metadata_to_api;
 
 mod installed;
+mod read;
+
+pub(super) use read::APP_READ_MAX_IDS;
 
 pub(crate) struct AppsRequestProcessor {
     auth_manager: Arc<AuthManager>,
@@ -458,8 +460,6 @@ fn record_legacy_apps_installed_duration(started_at: Instant, reload: bool) {
         );
     }
 }
-const APP_READ_MAX_IDS: usize = 100;
-
 enum AppListLoadResult {
     Accessible(Result<AccessibleConnectorsStatus, String>),
     Directory(Result<Vec<AppInfo>, String>),

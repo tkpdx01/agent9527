@@ -278,10 +278,12 @@ impl CommandExecManager {
                 &env,
                 &arg0,
                 size.unwrap_or_default(),
+                &[],
             )
             .await
         } else if stream_stdin {
-            codex_utils_pty::spawn_pipe_process(program, args, cwd.as_path(), &env, &arg0).await
+            codex_utils_pty::spawn_pipe_process(program, args, cwd.as_path(), &env, &arg0, &[])
+                .await
         } else {
             codex_utils_pty::spawn_pipe_process_no_stdin(
                 program,
@@ -289,6 +291,7 @@ impl CommandExecManager {
                 cwd.as_path(),
                 &env,
                 &arg0,
+                &[],
             )
             .await
         };

@@ -160,7 +160,9 @@ async fn perform_oauth_login_with_browser_output(
     let http_context = OAuthHttpContext {
         http_headers,
         env_http_headers,
-        http_client: Arc::new(ReqwestHttpClient),
+        http_client: Arc::new(RouteAwareHttpClient::new(HttpClientFactory::new(
+            OutboundProxyPolicy::ReqwestDefault,
+        ))),
     };
     OauthLoginFlow::new(
         server_name,
@@ -209,7 +211,9 @@ pub async fn perform_oauth_login_return_url(
         timeout_secs,
         callback_port,
         callback_url,
-        Arc::new(ReqwestHttpClient),
+        Arc::new(RouteAwareHttpClient::new(HttpClientFactory::new(
+            OutboundProxyPolicy::ReqwestDefault,
+        ))),
     )
     .await
 }
@@ -774,7 +778,9 @@ mod tests {
         let oauth_state = start_authorization(
             &format!("{base_url}/mcp"),
             Arc::new(OAuthHttpClientAdapter::new(
-                Arc::new(ReqwestHttpClient),
+                Arc::new(RouteAwareHttpClient::new(HttpClientFactory::new(
+                    OutboundProxyPolicy::ReqwestDefault,
+                ))),
                 HeaderMap::new(),
             )),
             &[],

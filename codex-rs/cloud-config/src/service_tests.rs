@@ -62,7 +62,7 @@ async fn auth_manager_with_api_key() -> Arc<AuthManager> {
             /*forced_chatgpt_workspace_id*/ None,
             /*chatgpt_base_url*/ None,
             AuthKeyringBackendKind::default(),
-            /*auth_route_config*/ None,
+            codex_login::test_support::transport_default_auth_route_config(),
         )
         .await,
     )
@@ -93,7 +93,7 @@ async fn auth_manager_with_plan_and_identity(
             /*forced_chatgpt_workspace_id*/ None,
             /*chatgpt_base_url*/ None,
             AuthKeyringBackendKind::default(),
-            /*auth_route_config*/ None,
+            codex_login::test_support::transport_default_auth_route_config(),
         )
         .await,
     )
@@ -119,7 +119,7 @@ async fn auth_manager_with_agent_identity_business_plan() -> Arc<AuthManager> {
                 task_id: Some("task-123".to_string()),
             },
             "https://auth.openai.com/api/accounts",
-            /*auth_route_config*/ None,
+            &codex_login::test_support::transport_default_auth_route_config(),
         )
         .await
         .expect("agent identity record should be complete"),
@@ -437,6 +437,7 @@ async fn get_bundle_skips_individual_plan() {
 async fn get_bundle_allows_eligible_workspace_plans_and_writes_cache() {
     for plan_type in [
         "business",
+        "ent26",
         "enterprise_cbp_usage_based",
         "enterprise",
         "hc",
@@ -725,7 +726,7 @@ async fn get_bundle_recovers_after_unauthorized_reload() {
             /*forced_chatgpt_workspace_id*/ None,
             /*chatgpt_base_url*/ None,
             AuthKeyringBackendKind::default(),
-            /*auth_route_config*/ None,
+            codex_login::test_support::transport_default_auth_route_config(),
         )
         .await,
     );
@@ -782,7 +783,7 @@ async fn get_bundle_recovers_after_unauthorized_reload_updates_cache_identity() 
             /*forced_chatgpt_workspace_id*/ None,
             /*chatgpt_base_url*/ None,
             AuthKeyringBackendKind::default(),
-            /*auth_route_config*/ None,
+            codex_login::test_support::transport_default_auth_route_config(),
         )
         .await,
     );
@@ -847,7 +848,7 @@ async fn get_bundle_surfaces_auth_recovery_message() {
             /*forced_chatgpt_workspace_id*/ None,
             /*chatgpt_base_url*/ None,
             AuthKeyringBackendKind::default(),
-            /*auth_route_config*/ None,
+            codex_login::test_support::transport_default_auth_route_config(),
         )
         .await,
     );
@@ -901,7 +902,7 @@ async fn get_bundle_refreshes_external_auth_after_unauthorized() {
             /*forced_chatgpt_workspace_id*/ None,
             /*chatgpt_base_url*/ None,
             AuthKeyringBackendKind::default(),
-            /*auth_route_config*/ None,
+            codex_login::test_support::transport_default_auth_route_config(),
         )
         .await,
     );

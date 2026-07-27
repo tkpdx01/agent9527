@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use codex_app_server_protocol::JSONRPCError;
-use codex_app_server_protocol::JSONRPCResponse;
 use codex_app_server_protocol::PluginAuthPolicy;
 use codex_app_server_protocol::PluginInstallPolicy;
 use codex_app_server_protocol::PluginInterface;
@@ -100,6 +99,7 @@ async fn plugin_share_save_uploads_local_plugin() -> Result<()> {
         .respond_with(ResponseTemplate::new(201).set_body_json(json!({
             "plugin_id": "plugins_123",
             "share_url": "https://chatgpt.example/plugins/share/share-key-1",
+            "can_publish_to_workspace": true,
         })))
         .expect(1)
         .mount(&server)
@@ -108,9 +108,8 @@ async fn plugin_share_save_uploads_local_plugin() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let expected_plugin_path = AbsolutePathBuf::try_from(plugin_path.clone())?;
     let request_id = mcp
         .send_raw_request(
@@ -121,18 +120,15 @@ async fn plugin_share_save_uploads_local_plugin() -> Result<()> {
         )
         .await?;
 
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareSaveResponse = to_response(response)?;
+    let response: PluginShareSaveResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     assert_eq!(
         response,
         PluginShareSaveResponse {
             remote_plugin_id: "plugins_123".to_string(),
             share_url: "https://chatgpt.example/plugins/share/share-key-1".to_string(),
+            can_publish_to_workspace: Some(true),
         }
     );
 
@@ -164,12 +160,8 @@ async fn plugin_share_save_uploads_local_plugin() -> Result<()> {
     let request_id = mcp
         .send_raw_request("plugin/share/list", Some(json!({})))
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareListResponse = to_response(response)?;
+    let response: PluginShareListResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     assert_eq!(
         response,
@@ -267,9 +259,8 @@ async fn plugin_share_save_forwards_access_policy() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let expected_plugin_path = AbsolutePathBuf::try_from(plugin_path)?;
     let request_id = mcp
         .send_raw_request(
@@ -288,18 +279,15 @@ async fn plugin_share_save_forwards_access_policy() -> Result<()> {
         )
         .await?;
 
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareSaveResponse = to_response(response)?;
+    let response: PluginShareSaveResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     assert_eq!(
         response,
         PluginShareSaveResponse {
             remote_plugin_id: "plugins_123".to_string(),
             share_url: "https://chatgpt.example/plugins/share/share-key-1".to_string(),
+            can_publish_to_workspace: None,
         }
     );
     Ok(())
@@ -327,9 +315,8 @@ async fn plugin_share_save_rejects_listed_discoverability() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request(
             "plugin/share/save",
@@ -385,9 +372,8 @@ plugin_sharing = false
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request(
             "plugin/share/save",
@@ -437,9 +423,8 @@ async fn plugin_share_rejects_workspace_targets_from_client() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request(
             "plugin/share/save",
@@ -522,9 +507,8 @@ async fn plugin_share_save_rejects_access_policy_for_existing_plugin() -> Result
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request(
             "plugin/share/save",
@@ -602,19 +586,14 @@ async fn plugin_share_list_returns_created_workspace_plugins() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request("plugin/share/list", Some(json!({})))
         .await?;
 
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareListResponse = to_response(response)?;
+    let response: PluginShareListResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     assert_eq!(
         response,
@@ -688,9 +667,8 @@ async fn plugin_share_checkout_adds_personal_marketplace_entry() -> Result<()> {
             ("USERPROFILE", Some(home_env.as_str())),
             (TEST_ALLOW_HTTP_REMOTE_PLUGIN_BUNDLE_DOWNLOADS, Some("1")),
         ])
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
 
     let request_id = mcp
         .send_raw_request(
@@ -700,12 +678,8 @@ async fn plugin_share_checkout_adds_personal_marketplace_entry() -> Result<()> {
             })),
         )
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareCheckoutResponse = to_response(response)?;
+    let response: PluginShareCheckoutResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     let plugin_path = AbsolutePathBuf::try_from(home.path().join("plugins/demo-plugin"))?;
     let marketplace_path =
@@ -774,14 +748,11 @@ async fn plugin_share_checkout_adds_personal_marketplace_entry() -> Result<()> {
             marketplace_kinds: Some(vec![
                 codex_app_server_protocol::PluginListMarketplaceKind::Local,
             ]),
+            force_refetch: false,
         })
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginListResponse = to_response(response)?;
+    let response: PluginListResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
     assert_eq!(response.marketplaces.len(), 1);
     assert_eq!(response.marketplaces[0].name, "codex-curated");
     assert_eq!(response.marketplaces[0].plugins[0].name, "demo-plugin");
@@ -802,12 +773,8 @@ async fn plugin_share_checkout_adds_personal_marketplace_entry() -> Result<()> {
             })),
         )
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareCheckoutResponse = to_response(response)?;
+    let response: PluginShareCheckoutResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
     assert_eq!(response.plugin_path, plugin_path);
     assert_eq!(
         std::fs::read_to_string(plugin_path.as_path().join("local-edit.txt"))?,
@@ -855,9 +822,8 @@ async fn plugin_share_checkout_rejects_non_share_remote_plugin() -> Result<()> {
             ("USERPROFILE", Some(home_env.as_str())),
             (TEST_ALLOW_HTTP_REMOTE_PLUGIN_BUNDLE_DOWNLOADS, Some("1")),
         ])
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
 
     let request_id = mcp
         .send_raw_request(
@@ -950,9 +916,8 @@ async fn plugin_share_checkout_cleans_up_path_when_marketplace_update_fails() ->
             ("USERPROFILE", Some(home_env.as_str())),
             (TEST_ALLOW_HTTP_REMOTE_PLUGIN_BUNDLE_DOWNLOADS, Some("1")),
         ])
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
 
     let request_id = mcp
         .send_raw_request(
@@ -1052,9 +1017,8 @@ async fn plugin_share_update_targets_updates_share_targets() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request(
             "plugin/share/updateTargets",
@@ -1072,12 +1036,8 @@ async fn plugin_share_update_targets_updates_share_targets() -> Result<()> {
         )
         .await?;
 
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareUpdateTargetsResponse = to_response(response)?;
+    let response: PluginShareUpdateTargetsResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     assert_eq!(
         response,
@@ -1151,9 +1111,8 @@ async fn plugin_share_update_targets_publishes_workspace_plugin() -> Result<()> 
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request(
             "plugin/share/updateTargets",
@@ -1165,12 +1124,8 @@ async fn plugin_share_update_targets_publishes_workspace_plugin() -> Result<()> 
         )
         .await?;
 
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareUpdateTargetsResponse = to_response(response)?;
+    let response: PluginShareUpdateTargetsResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     assert_eq!(
         response,
@@ -1216,9 +1171,8 @@ plugin_sharing = false
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request(
             "plugin/share/updateTargets",
@@ -1276,9 +1230,8 @@ async fn plugin_share_delete_removes_created_workspace_plugin() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
         .without_auto_env()
-        .build()
+        .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
-    timeout(DEFAULT_TIMEOUT, mcp.initialize()).await??;
     let request_id = mcp
         .send_raw_request(
             "plugin/share/delete",
@@ -1288,12 +1241,8 @@ async fn plugin_share_delete_removes_created_workspace_plugin() -> Result<()> {
         )
         .await?;
 
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareDeleteResponse = to_response(response)?;
+    let response: PluginShareDeleteResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     assert_eq!(response, PluginShareDeleteResponse {});
 
@@ -1325,12 +1274,8 @@ async fn plugin_share_delete_removes_created_workspace_plugin() -> Result<()> {
     let request_id = mcp
         .send_raw_request("plugin/share/list", Some(json!({})))
         .await?;
-    let response: JSONRPCResponse = timeout(
-        DEFAULT_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(request_id)),
-    )
-    .await??;
-    let response: PluginShareListResponse = to_response(response)?;
+    let response: PluginShareListResponse =
+        timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
 
     assert_eq!(
         response,
@@ -1460,6 +1405,7 @@ fn remote_plugin_json(plugin_id: &str) -> serde_json::Value {
         "name": "demo-plugin",
         "scope": "WORKSPACE",
         "discoverability": "PRIVATE",
+        "can_publish_to_workspace": true,
         "share_url": "https://chatgpt.example/plugins/share/share-key-1",
         "share_principals": [
             {
@@ -1553,6 +1499,7 @@ fn expected_share_context(plugin_id: &str) -> PluginShareContext {
                 name: "Reader".to_string(),
             },
         ]),
+        can_publish_to_workspace: Some(true),
     }
 }
 

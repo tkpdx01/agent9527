@@ -6,7 +6,6 @@ use codex_core::config::Config;
 use codex_protocol::ThreadId;
 use codex_protocol::error::CodexErr;
 use codex_protocol::error::Result as CodexResult;
-use codex_protocol::protocol::InitialHistory;
 use codex_protocol::protocol::W3cTraceContext;
 use codex_protocol::user_input::UserInput;
 use std::sync::Arc;
@@ -57,29 +56,18 @@ impl AgentRunner {
             ));
         }
 
-        let thread_manager = self.thread_manager.upgrade().ok_or_else(|| {
-            CodexErr::UnsupportedOperation("thread manager dropped".to_string())
-        })?;
-        let environments =
-            thread_manager.default_environment_selections(&config.cwd, &config.workspace_roots);
+        let thread_manager = self
+            .thread_manager
+            .upgrade()
+            .ok_or_else(|| CodexErr::UnsupportedOperation("thread manager dropped".to_string()))?;
         let NewThread {
             thread_id, thread, ..
         } = thread_manager
             .spawn_subagent(
                 parent_thread_id,
                 StartThreadOptions {
-                    config,
-                    allow_provider_model_fallback: false,
-                    initial_history: InitialHistory::New,
-                    history_mode: None,
-                    session_source: None,
-                    thread_source: None,
-                    dynamic_tools: Vec::new(),
-                    metrics_service_name: None,
                     parent_trace: parent_trace.clone(),
-                    environments,
-                    thread_extension_init: Default::default(),
-                    supports_openai_form_elicitation: false,
+                    ..StartThreadOptions::new(config)
                 },
             )
             .await?;

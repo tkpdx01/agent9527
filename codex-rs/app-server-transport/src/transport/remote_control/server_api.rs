@@ -223,7 +223,7 @@ where
     Request: Serialize,
     Response: DeserializeOwned,
 {
-    let client = build_reqwest_client();
+    let client = create_client_without_request_logging();
     let auth_headers = auth.request_headers()?;
     let response = client
         .post(url)

@@ -16,9 +16,6 @@ use codex_exec_server_protocol::JSONRPCRequest;
 use codex_exec_server_protocol::JSONRPCResponse;
 use codex_exec_server_protocol::MAX_HTTP_BODY_DELTA_BYTES;
 use codex_exec_server_protocol::RequestId;
-use anyhow::Context;
-use anyhow::Result;
-use anyhow::bail;
 use futures::SinkExt;
 use futures::StreamExt;
 use pretty_assertions::assert_eq;
@@ -1369,6 +1366,7 @@ impl ScriptedExecServer {
         ExecServerClient::connect_websocket(RemoteExecServerConnectArgs::new(
             self.websocket_url.clone(),
             CLIENT_NAME.to_string(),
+            HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault),
         ))
         .await
         .context("client should connect to fake exec-server")

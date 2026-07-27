@@ -6,7 +6,7 @@ use super::protocol::StartRemoteControlPairingRequest;
 use super::protocol::StartRemoteControlPairingResponse;
 use codex_app_server_protocol::RemoteControlPairingStartResponse;
 use codex_app_server_protocol::RemoteControlPairingStatusResponse;
-use codex_login::default_client::build_reqwest_client;
+use codex_login::default_client::create_client_without_request_logging;
 use codex_state::RemoteControlEnrollmentRecord;
 use codex_state::StateRuntime;
 use axum::http::HeaderMap;
@@ -59,7 +59,7 @@ impl RemoteControlEnrollment {
             .as_deref()
             .ok_or_else(pairing_unavailable_error)?;
 
-        let response = build_reqwest_client()
+        let response = create_client_without_request_logging()
             .post(&self.remote_control_target.pair_url)
             .timeout(REMOTE_CONTROL_PAIRING_TIMEOUT)
             .bearer_auth(remote_control_token)
@@ -154,7 +154,7 @@ impl RemoteControlEnrollment {
             .as_deref()
             .ok_or_else(pairing_unavailable_error)?;
 
-        let response = build_reqwest_client()
+        let response = create_client_without_request_logging()
             .post(&self.remote_control_target.pair_status_url)
             .timeout(REMOTE_CONTROL_PAIRING_TIMEOUT)
             .bearer_auth(remote_control_token)
@@ -432,6 +432,7 @@ mod tests {
     use crate::transport::remote_control::protocol::normalize_remote_control_url;
     use crate::transport::remote_control::server_api::enroll_remote_control_server;
     use codex_state::StateRuntime;
+    use codex_utils_absolute_path::test_support::PathExt;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use std::sync::Arc;
@@ -446,7 +447,7 @@ mod tests {
 
     async fn remote_control_state_runtime(codex_home: &TempDir) -> Arc<StateRuntime> {
         StateRuntime::init(
-            codex_home.path().to_path_buf(),
+            codex_state::SqliteConfig::new_for_testing(codex_home.path().abs()),
             "test-provider".to_string(),
         )
         .await
