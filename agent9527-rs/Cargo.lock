@@ -974,7 +974,7 @@ dependencies = [
  "agent9527-utils-path-uri",
  "anyhow",
  "base64 0.22.1",
- "core-foundation 0.9.4",
+ "core-foundation 0.10.1",
  "dns-lookup",
  "dunce",
  "futures",
@@ -2901,7 +2901,7 @@ dependencies = [
 name = "agent9527-utils-sleep-inhibitor"
 version = "20260727.2.0"
 dependencies = [
- "core-foundation 0.9.4",
+ "core-foundation 0.10.1",
  "libc",
  "tracing",
  "windows-sys 0.61.2",
