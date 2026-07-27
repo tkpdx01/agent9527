@@ -3,26 +3,26 @@ requires = ["uv_build>=0.11.19,<0.12"]
 build-backend = "uv_build"
 
 [project]
-name = "openai-codex"
-version = "20260721.2.0"
-description = "Python SDK for Codex"
+name = "openai-agent9527"
+version = "20260727.1.0"
+description = "Python SDK for Agent9527"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 authors = [{ name = "OpenAI" }]
-keywords = ["codex", "sdk", "llm", "ai", "agents"]
+keywords = ["agent9527", "sdk", "llm", "ai", "agents"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["pydantic>=2.12", "openai-codex-cli-bin==20260721.2.0"]
+dependencies = ["pydantic>=2.12", "openai-agent9527-cli-bin==20260727.1.0"]
 
 [project.urls]
-Homepage = "https://github.com/openai/codex"
-Repository = "https://github.com/openai/codex"
-Issues = "https://github.com/openai/codex/issues"
-Documentation = "https://github.com/openai/codex/tree/main/sdk/python/docs"
+Homepage = "https://github.com/tkpdx01/agent9527"
+Repository = "https://github.com/tkpdx01/agent9527"
+Issues = "https://github.com/tkpdx01/agent9527/issues"
+Documentation = "https://github.com/tkpdx01/agent9527/tree/main/sdk/python/docs"
 
 [dependency-groups]
 format = ["ruff>=0.15.8"]
@@ -46,7 +46,7 @@ required-version = ">=0.15.8"
 line-length = 100
 extend-exclude = [
   "notebooks/**",
-  "src/openai_codex/generated/**",
+  "src/openai_agent9527/generated/**",
 ]
 
 [tool.ruff.lint]
@@ -65,13 +65,13 @@ combine-as-imports = true
 
 [tool.uv]
 exclude-newer = "7 days"
-exclude-newer-package = { openai-codex-cli-bin = "2026-07-15T01:00:00Z" }
+exclude-newer-package = { openai-agent9527-cli-bin = "2026-07-15T01:00:00Z" }
 index-strategy = "first-index"
 
 [tool.uv.sources]
-openai-codex-cli-bin = { path = "../python-runtime" }
+openai-agent9527-cli-bin = { path = "../python-runtime" }
 
 [tool.uv.pip]
 exclude-newer = "7 days"
-exclude-newer-package = { openai-codex-cli-bin = "2026-07-15T01:00:00Z" }
+exclude-newer-package = { openai-agent9527-cli-bin = "2026-07-15T01:00:00Z" }
 index-strategy = "first-index"

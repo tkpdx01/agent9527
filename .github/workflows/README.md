@@ -2,6 +2,24 @@
 
 The workflows in this directory are split so that pull requests get fast, review-friendly signal while `main` still gets the full cross-platform verification pass.
 
+## Agent9527 Automation
+
+`upstream-sync.yml` checks OpenAI Codex `main` every day, performs a history-preserving merge,
+and uses Codex CLI to resolve conflicts and adapt new upstream code to Agent9527 branding. Configure
+these repository settings before enabling it:
+
+- Actions secrets `AGENT9527_SYNC_API_KEY` and `AGENT9527_SYNC_BASE_URL`.
+- Optional Actions variable `AGENT9527_SYNC_MODEL`; when omitted, the workflow selects a suitable
+  GPT-5/Codex model from the provider's `/models` response.
+
+Successful syncs bump the calendar version, update `.github/upstream.json`, push `main`, tag the
+release, and dispatch `agent9527-publish.yml`.
+
+`agent9527-publish.yml` builds native npm payloads for Linux, macOS, and Windows on x64 and arm64,
+then publishes `@tkpdx01/agent9527`. npm Trusted Publishing is preferred; configure the trusted
+publisher for repository `tkpdx01/agent9527`, workflow `agent9527-publish.yml`, and environment
+`npm`. Alternatively, add an `NPM_TOKEN` Actions secret.
+
 ## Pull Requests
 
 - `bazel.yml` is the main pre-merge verification path for Rust code.

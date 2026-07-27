@@ -1,0 +1,6 @@
+load("//:defs.bzl", "agent9527_rust_crate")
+
+agent9527_rust_crate(
+    name = "message-history",
+    crate_name = "agent9527_message_history",
+)

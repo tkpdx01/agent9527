@@ -1,0 +1,33 @@
+---
+source: core/src/context/world_state/permissions_tests.rs
+expression: "render_section_cases(&[(Absent, Absent), (Absent, Known(&read_only)),\n(Known(&read_only), Known(&read_only)),\n(Known(&read_only), Known(&full_access)),\n(Known(&read_only), Known(&never_ask)), (Unknown, Known(&read_only)),])"
+---
+Absent -> Absent
+None
+
+Absent -> "046680895f67f30ea8fc06b8e905c709dc899928" (role - developer)
+<permissions instructions>
+Read only.
+Ask for approval.
+</permissions instructions>
+
+"046680895f67f30ea8fc06b8e905c709dc899928" -> "046680895f67f30ea8fc06b8e905c709dc899928"
+None
+
+"046680895f67f30ea8fc06b8e905c709dc899928" -> "8a93f58ff8556b79d76e3576fa0a99a7b7cf2291" (role - developer)
+<permissions instructions>
+Full access.
+Ask for approval.
+</permissions instructions>
+
+"046680895f67f30ea8fc06b8e905c709dc899928" -> "6f027766416db9e63c8d92397b789495ca429ee1" (role - developer)
+<permissions instructions>
+Read only.
+Approval policy is currently never. Do not provide the `sandbox_permissions` for any reason, commands will be rejected.
+</permissions instructions>
+
+Unknown -> "046680895f67f30ea8fc06b8e905c709dc899928" (role - developer)
+<permissions instructions>
+Read only.
+Ask for approval.
+</permissions instructions>

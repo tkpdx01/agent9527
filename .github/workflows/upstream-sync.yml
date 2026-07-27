@@ -1,0 +1,295 @@
+name: Sync OpenAI Codex upstream
+
+on:
+  schedule:
+    - cron: "17 18 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Run the integration even when the recorded upstream SHA is current
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: agent9527-upstream-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  sync:
+    if: github.repository == 'tkpdx01/agent9527'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    outputs:
+      changed: ${{ steps.detect.outputs.changed }}
+      version: ${{ steps.finalize.outputs.version }}
+      release_ref: ${{ steps.push.outputs.release_ref }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-ci
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+
+      - uses: dtolnay/rust-toolchain@e081816240890017053eacbb1bdf337761dc5582 # 1.95.0
+
+      - name: Fetch upstream and detect changes
+        id: detect
+        shell: bash
+        env:
+          FORCE_SYNC: ${{ inputs.force || false }}
+        run: |
+          set -euo pipefail
+          git remote add upstream https://github.com/openai/codex.git
+          git fetch --no-tags upstream main
+
+          upstream_sha="$(git rev-parse upstream/main)"
+          recorded_sha="$(jq -r '.commit' .github/upstream.json)"
+          echo "upstream_sha=${upstream_sha}" >> "$GITHUB_OUTPUT"
+          echo "recorded_sha=${recorded_sha}" >> "$GITHUB_OUTPUT"
+
+          if [[ "$upstream_sha" == "$recorded_sha" && "$FORCE_SYNC" != "true" ]]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Agent9527 already contains upstream ${upstream_sha}."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Syncing ${recorded_sha}..${upstream_sha}."
+          fi
+
+      - name: Attempt history-preserving merge
+        if: steps.detect.outputs.changed == 'true'
+        shell: bash
+        env:
+          UPSTREAM_SHA: ${{ steps.detect.outputs.upstream_sha }}
+        run: |
+          set -euo pipefail
+          git config user.name "agent9527-upstream-bot"
+          git config user.email "agent9527-upstream-bot@users.noreply.github.com"
+          git config merge.renameLimit 20000
+          git config diff.renameLimit 20000
+          git config merge.directoryRenames true
+
+          set +e
+          git merge --no-commit --no-ff "$UPSTREAM_SHA"
+          merge_status=$?
+          set -e
+
+          if [[ $merge_status -ne 0 ]] && [[ -z "$(git ls-files --unmerged)" ]]; then
+            echo "Upstream merge failed without leaving resolvable conflicts." >&2
+            exit "$merge_status"
+          fi
+
+      - name: Install Codex CLI sync agent
+        if: steps.detect.outputs.changed == 'true'
+        run: npm install --global @openai/codex@latest
+
+      - name: Resolve sync model
+        if: steps.detect.outputs.changed == 'true'
+        id: model
+        shell: bash
+        env:
+          AGENT9527_SYNC_API_KEY: ${{ secrets.AGENT9527_SYNC_API_KEY }}
+          AGENT9527_SYNC_BASE_URL: ${{ secrets.AGENT9527_SYNC_BASE_URL }}
+          CONFIGURED_MODEL: ${{ vars.AGENT9527_SYNC_MODEL }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$AGENT9527_SYNC_API_KEY" || -z "$AGENT9527_SYNC_BASE_URL" ]]; then
+            echo "AGENT9527_SYNC_API_KEY and AGENT9527_SYNC_BASE_URL secrets are required." >&2
+            exit 1
+          fi
+
+          model="$CONFIGURED_MODEL"
+          if [[ -z "$model" ]]; then
+            models_json="$(curl --fail --silent --show-error --max-time 30 \
+              -H "Authorization: Bearer ${AGENT9527_SYNC_API_KEY}" \
+              "${AGENT9527_SYNC_BASE_URL%/}/models")"
+            model="$(jq -r '
+              [.data[]?.id]
+              | map({
+                  id: ., rank:
+                    (if test("gpt-5\\.6.*sol"; "i") then 0
+                     elif test("gpt-5\\.6"; "i") then 1
+                     elif test("gpt-5\\.4"; "i") then 2
+                     elif test("codex"; "i") then 3
+                     elif test("^gpt-5"; "i") then 4
+                     else 99 end)
+                })
+              | sort_by(.rank, .id)
+              | first
+              | select(.rank < 99)
+              | .id
+            ' <<< "$models_json")"
+          fi
+
+          if [[ -z "$model" || "$model" == "null" ]]; then
+            echo "Set the AGENT9527_SYNC_MODEL repository variable to a supported model ID." >&2
+            exit 1
+          fi
+          echo "model=${model}" >> "$GITHUB_OUTPUT"
+          echo "Using sync model ${model}."
+
+      - name: Configure Codex CLI sync provider
+        if: steps.detect.outputs.changed == 'true'
+        shell: bash
+        env:
+          SYNC_MODEL: ${{ steps.model.outputs.model }}
+          SYNC_BASE_URL: ${{ secrets.AGENT9527_SYNC_BASE_URL }}
+        run: |
+          set -euo pipefail
+          sync_home="${RUNNER_TEMP}/codex-sync-home"
+          mkdir -p "$sync_home"
+          cat > "$sync_home/config.toml" <<EOF
+          model = "${SYNC_MODEL}"
+          model_provider = "agent9527-sync"
+          model_reasoning_effort = "high"
+
+          [model_providers.agent9527-sync]
+          name = "Agent9527 upstream sync provider"
+          base_url = "${SYNC_BASE_URL}"
+          env_key = "AGENT9527_SYNC_API_KEY"
+          wire_api = "responses"
+
+          [shell_environment_policy]
+          inherit = "core"
+          exclude = [
+            "AGENT9527_SYNC_API_KEY",
+            "GITHUB_TOKEN",
+            "GH_TOKEN",
+            "NPM_TOKEN",
+            "NODE_AUTH_TOKEN",
+            "ACTIONS_ID_TOKEN_REQUEST_TOKEN",
+            "ACTIONS_RUNTIME_TOKEN"
+          ]
+          EOF
+          echo "CODEX_HOME=${sync_home}" >> "$GITHUB_ENV"
+
+      - name: Let Codex integrate and repair the upstream delta
+        if: steps.detect.outputs.changed == 'true'
+        shell: bash
+        env:
+          AGENT9527_SYNC_API_KEY: ${{ secrets.AGENT9527_SYNC_API_KEY }}
+          SYNC_MODEL: ${{ steps.model.outputs.model }}
+          OLD_UPSTREAM_SHA: ${{ steps.detect.outputs.recorded_sha }}
+          NEW_UPSTREAM_SHA: ${{ steps.detect.outputs.upstream_sha }}
+        run: |
+          set -euo pipefail
+          {
+            cat .github/prompts/upstream-sync.md
+            printf '\nSync range: %s..%s\n' "$OLD_UPSTREAM_SHA" "$NEW_UPSTREAM_SHA"
+          } | codex exec \
+            --ephemeral \
+            --dangerously-bypass-approvals-and-sandbox \
+            --color never \
+            --model "$SYNC_MODEL" \
+            --cd "$GITHUB_WORKSPACE" \
+            --output-last-message "$RUNNER_TEMP/upstream-sync-summary.md" \
+            -
+
+      - name: Validate protected automation and merge state
+        if: steps.detect.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$(git ls-files --unmerged)" ]]; then
+            git status --short
+            echo "The sync agent left unresolved merge conflicts." >&2
+            exit 1
+          fi
+
+          protected_paths=(
+            .github/prompts/upstream-sync.md
+            .github/upstream.json
+            .github/workflows/upstream-sync.yml
+            .github/workflows/agent9527-publish.yml
+            scripts/finalize_upstream_sync.py
+            scripts/test_finalize_upstream_sync.py
+          )
+          if ! git diff --quiet HEAD -- "${protected_paths[@]}"; then
+            git diff -- "${protected_paths[@]}"
+            echo "The sync agent modified protected automation files." >&2
+            exit 1
+          fi
+
+          if [[ -n "$(git ls-files 'codex-cli/**' 'codex-rs/**')" ]]; then
+            echo "Upstream-branded top-level source directories remain after integration." >&2
+            exit 1
+          fi
+
+      - name: Finalize version and upstream marker
+        if: steps.detect.outputs.changed == 'true'
+        id: finalize
+        shell: bash
+        env:
+          UPSTREAM_SHA: ${{ steps.detect.outputs.upstream_sha }}
+        run: |
+          set -euo pipefail
+          python3 scripts/finalize_upstream_sync.py \
+            --upstream-sha "$UPSTREAM_SHA" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Format and validate sync
+        if: steps.detect.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/test_finalize_upstream_sync.py
+          just fmt
+          # The branded distribution intentionally disables OpenAI account login, so upstream
+          # CLI integration tests that assert login behavior are not part of this release gate.
+          just test -p agent9527-cli --lib --bins
+
+      - name: Commit and push main plus release tag
+        if: steps.detect.outputs.changed == 'true'
+        id: push
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM_SHA: ${{ steps.detect.outputs.upstream_sha }}
+          VERSION: ${{ steps.finalize.outputs.version }}
+        run: |
+          set -euo pipefail
+          git add --all
+          if git diff --cached --quiet; then
+            echo "The upstream sync produced no commit." >&2
+            exit 1
+          fi
+
+          short_upstream="${UPSTREAM_SHA:0:12}"
+          git commit -m "chore(sync): catch up OpenAI Codex to ${short_upstream}"
+          release_ref="agent9527-v${VERSION}"
+          git tag -a "$release_ref" -m "Release Agent9527 ${VERSION}"
+
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --atomic origin HEAD:main "$release_ref"
+          echo "release_ref=${release_ref}" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch npm release workflow
+        if: steps.detect.outputs.changed == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REF: ${{ steps.push.outputs.release_ref }}
+        run: |
+          set -euo pipefail
+          gh workflow run agent9527-publish.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f release_ref="$RELEASE_REF"
+
+      - name: Upload Codex sync summary
+        if: always() && steps.detect.outputs.changed == 'true'
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: upstream-sync-summary
+          path: ${{ runner.temp }}/upstream-sync-summary.md
+          if-no-files-found: ignore

@@ -1,0 +1,315 @@
+name: Build and publish Agent9527
+
+on:
+  push:
+    tags:
+      - "agent9527-v*"
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Git tag, branch, or commit to build
+        required: true
+        default: main
+        type: string
+
+concurrency:
+  group: agent9527-publish-${{ inputs.release_ref || github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build-platform-packages:
+    name: Build ${{ matrix.target }} npm package
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+            package: agent9527-linux-x64
+            npm_tag: linux-x64
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-musl
+            package: agent9527-linux-arm64
+            npm_tag: linux-arm64
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            package: agent9527-darwin-x64
+            npm_tag: darwin-x64
+          - runner: macos-15
+            target: aarch64-apple-darwin
+            package: agent9527-darwin-arm64
+            npm_tag: darwin-arm64
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            package: agent9527-win32-x64
+            npm_tag: win32-x64
+          - runner: windows-11-arm
+            target: aarch64-pc-windows-msvc
+            package: agent9527-win32-arm64
+            npm_tag: win32-arm64
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.release_ref || github.ref }}
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-ci
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - uses: dtolnay/rust-toolchain@e081816240890017053eacbb1bdf337761dc5582 # 1.95.0
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install Zig
+        if: runner.os == 'Linux'
+        uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2.2.1
+        with:
+          version: 0.14.0
+          use-cache: false
+
+      - name: Install musl build tools
+        if: runner.os == 'Linux'
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: bash "${GITHUB_WORKSPACE}/.github/scripts/install-musl-build-tools.sh"
+
+      - name: Disable aws-lc jitter entropy
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "AWS_LC_SYS_NO_JITTER_ENTROPY=1" >> "$GITHUB_ENV"
+          target_var="AWS_LC_SYS_NO_JITTER_ENTROPY_${{ matrix.target }}"
+          target_var="${target_var//-/_}"
+          echo "${target_var}=1" >> "$GITHUB_ENV"
+
+      - name: Configure MSVC environment
+        if: runner.os == 'Windows'
+        uses: ./.github/actions/setup-msvc-env
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Configure Windows x64 SQLite build
+        if: matrix.target == 'x86_64-pc-windows-msvc'
+        shell: bash
+        run: echo "LIBSQLITE3_FLAGS=SQLITE_DISABLE_INTRINSIC" >> "$GITHUB_ENV"
+
+      - name: Build Linux bwrap and export digest
+        if: runner.os == 'Linux'
+        id: bwrap
+        shell: bash
+        working-directory: agent9527-rs
+        run: |
+          set -euo pipefail
+          target="${{ matrix.target }}"
+          cargo build --target "$target" --release --bin bwrap
+          bwrap_path="${CARGO_TARGET_DIR}/${target}/release/bwrap"
+          strip --strip-debug --strip-unneeded "$bwrap_path"
+          digest="$(sha256sum "$bwrap_path" | awk '{print $1}')"
+          echo "AGENT9527_BWRAP_SHA256=${digest}" >> "$GITHUB_ENV"
+          echo "path=${bwrap_path}" >> "$GITHUB_OUTPUT"
+
+      - name: Build canonical platform package
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          BWRAP_PATH: ${{ steps.bwrap.outputs.path }}
+        run: |
+          set -euo pipefail
+          vendor_root="${RUNNER_TEMP}/agent9527-vendor"
+          package_dir="${vendor_root}/${TARGET}"
+          args=(
+            --target "$TARGET"
+            --cargo-profile release
+            --package-dir "$package_dir"
+            --force
+          )
+          if [[ -n "$BWRAP_PATH" ]]; then
+            args+=(--bwrap-bin "$BWRAP_PATH")
+          fi
+          python scripts/build_agent9527_package.py "${args[@]}"
+
+      - name: Stage platform npm tarball
+        shell: bash
+        env:
+          PACKAGE: ${{ matrix.package }}
+          NPM_TAG: ${{ matrix.npm_tag }}
+        run: |
+          set -euo pipefail
+          version="$(tr -d '\r\n' < VERSION)"
+          mkdir -p dist/npm
+          python agent9527-cli/scripts/build_npm_package.py \
+            --package "$PACKAGE" \
+            --version "$version" \
+            --vendor-src "${RUNNER_TEMP}/agent9527-vendor" \
+            --pack-output "dist/npm/agent9527-npm-${NPM_TAG}-${version}.tgz"
+
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: npm-${{ matrix.npm_tag }}
+          path: dist/npm/*.tgz
+          if-no-files-found: error
+
+  build-root-package:
+    name: Build root npm package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.release_ref || github.ref }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+
+      - name: Stage root npm tarball
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(tr -d '\r\n' < VERSION)"
+          mkdir -p dist/npm
+          python3 agent9527-cli/scripts/build_npm_package.py \
+            --package agent9527 \
+            --version "$version" \
+            --pack-output "dist/npm/agent9527-npm-${version}.tgz"
+
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: npm-root
+          path: dist/npm/*.tgz
+          if-no-files-found: error
+
+  publish:
+    name: Publish npm package and GitHub release
+    needs:
+      - build-platform-packages
+      - build-root-package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: npm
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.release_ref || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: npm-*
+          merge-multiple: true
+          path: dist/npm
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          scope: "@tkpdx01"
+
+      - name: Verify release metadata
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(tr -d '\r\n' < VERSION)"
+          tag="agent9527-v${version}"
+          event_tag="${GITHUB_REF_NAME:-}"
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$event_tag" != "$tag" ]]; then
+            echo "Tag ${event_tag} does not match VERSION ${version}." >&2
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish npm tarballs
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          set -euo pipefail
+          tarballs=(
+            "dist/npm/agent9527-npm-linux-x64-${VERSION}.tgz"
+            "dist/npm/agent9527-npm-linux-arm64-${VERSION}.tgz"
+            "dist/npm/agent9527-npm-darwin-x64-${VERSION}.tgz"
+            "dist/npm/agent9527-npm-darwin-arm64-${VERSION}.tgz"
+            "dist/npm/agent9527-npm-win32-x64-${VERSION}.tgz"
+            "dist/npm/agent9527-npm-win32-arm64-${VERSION}.tgz"
+            "dist/npm/agent9527-npm-${VERSION}.tgz"
+          )
+
+          for tarball in "${tarballs[@]}"; do
+            if [[ ! -f "$tarball" ]]; then
+              echo "Missing npm tarball: ${tarball}" >&2
+              exit 1
+            fi
+
+            package_json="$(tar -xOf "$tarball" package/package.json)"
+            package_name="$(jq -r '.name' <<< "$package_json")"
+            package_version="$(jq -r '.version' <<< "$package_json")"
+            if npm view "${package_name}@${package_version}" version >/dev/null 2>&1; then
+              echo "Skipping existing ${package_name}@${package_version}."
+              continue
+            fi
+
+            filename="$(basename "$tarball")"
+            root_filename="agent9527-npm-${VERSION}.tgz"
+            case "$filename" in
+              agent9527-npm-linux-x64-*) npm_tag="platform-linux-x64" ;;
+              agent9527-npm-linux-arm64-*) npm_tag="platform-linux-arm64" ;;
+              agent9527-npm-darwin-x64-*) npm_tag="platform-darwin-x64" ;;
+              agent9527-npm-darwin-arm64-*) npm_tag="platform-darwin-arm64" ;;
+              agent9527-npm-win32-x64-*) npm_tag="platform-win32-x64" ;;
+              agent9527-npm-win32-arm64-*) npm_tag="platform-win32-arm64" ;;
+              "$root_filename") npm_tag="latest" ;;
+              *) echo "Unexpected npm tarball: ${tarball}" >&2; exit 1 ;;
+            esac
+
+            npm publish "$tarball" \
+              --access public \
+              --provenance \
+              --tag "$npm_tag"
+          done
+
+      - name: Create or update GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.metadata.outputs.tag }}
+          VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          set -euo pipefail
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            git tag -a "$TAG" -m "Release Agent9527 ${VERSION}"
+            git push origin "$TAG"
+          fi
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/npm/*.tgz \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          else
+            gh release create "$TAG" dist/npm/*.tgz \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Agent9527 ${VERSION}" \
+              --generate-notes \
+              --latest
+          fi

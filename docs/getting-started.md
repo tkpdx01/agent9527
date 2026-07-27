@@ -1,3 +1,3 @@
-# Getting started with Codex CLI
+# Getting started with Agent9527 CLI
 
-For an overview of Codex CLI features, see [this documentation](https://developers.openai.com/codex/cli/features#running-in-interactive-mode).
+For an overview of Agent9527 CLI features, see [this documentation](https://developers.openai.com/agent9527/cli/features#running-in-interactive-mode).

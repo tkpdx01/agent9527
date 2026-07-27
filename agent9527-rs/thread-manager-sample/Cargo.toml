@@ -1,0 +1,18 @@
+[package]
+name = "agent9527-thread-manager-sample"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+# Keep this sample limited to a single Agent9527 workspace dependency.
+# Add new Agent9527 surface area to `agent9527-core-api` instead of depending on
+# additional `agent9527-*` crates here.
+agent9527-core-api = { workspace = true }
+tracing = { workspace = true }

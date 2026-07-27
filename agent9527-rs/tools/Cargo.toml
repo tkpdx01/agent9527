@@ -1,0 +1,39 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "agent9527-tools"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+agent9527-code-mode = { workspace = true }
+agent9527-connectors = { workspace = true }
+agent9527-features = { workspace = true }
+agent9527-file-system = { workspace = true }
+agent9527-extension-items = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-output-truncation = { workspace = true }
+agent9527-utils-pty = { workspace = true }
+agent9527-utils-string = { workspace = true }
+jsonptr = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = [
+    "base64",
+    "macros",
+    "schemars",
+    "server",
+] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["raw_value"] }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+urlencoding = { workspace = true }
+
+[dev-dependencies]
+agent9527-utils-cargo-bin = { workspace = true }
+pretty_assertions = { workspace = true }
+
+[lib]
+doctest = false

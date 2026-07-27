@@ -1,12 +1,12 @@
 #!/usr/bin/env -S NODE_NO_WARNINGS=1 pnpm ts-node-esm --files
 
-import { Codex } from "@openai/codex-sdk";
+import { Agent9527 } from "@tkpdx01/agent9527-sdk";
 
-import { codexPathOverride } from "./helpers.ts";
+import { agent9527PathOverride } from "./helpers.ts";
 
-const codex = new Codex({ codexPathOverride: codexPathOverride() });
+const agent9527 = new Agent9527({ agent9527PathOverride: agent9527PathOverride() });
 
-const thread = codex.startThread();
+const thread = agent9527.startThread();
 
 const schema = {
   type: "object",

@@ -1,6 +1,6 @@
 packages:
-  - codex-cli
-  - codex-rs/responses-api-proxy/npm
+  - agent9527-cli
+  - agent9527-rs/responses-api-proxy/npm
   - sdk/typescript
 
 ignoredBuiltDependencies:

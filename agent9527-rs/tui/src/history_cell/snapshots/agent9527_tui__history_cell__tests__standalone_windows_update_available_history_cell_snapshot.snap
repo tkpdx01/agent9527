@@ -1,0 +1,12 @@
+---
+source: tui/src/history_cell/tests.rs
+expression: rendered
+---
+╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✨ Update available! 20260727.1.0 -> 9.9.9                                                                 │
+│ Run powershell -ExecutionPolicy Bypass -c '$env:AGENT9527_NON_INTERACTIVE=1; irm                           │
+│ https://chatgpt.com/agent9527/install.ps1 | iex' to update.                                                │
+│                                                                                                            │
+│ See full release notes:                                                                                    │
+│ https://github.com/openai/agent9527/releases/latest                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯

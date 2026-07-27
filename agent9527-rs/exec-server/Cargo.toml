@@ -1,0 +1,82 @@
+[package]
+name = "agent9527-exec-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+arc-swap = { workspace = true }
+axum = { workspace = true, features = ["http1", "tokio", "ws"] }
+base64 = { workspace = true }
+bytes = { workspace = true }
+clatter = { workspace = true }
+agent9527-api = { workspace = true }
+agent9527-http-client = { workspace = true }
+agent9527-exec-server-protocol = { workspace = true }
+agent9527-file-system = { workspace = true }
+agent9527-network-proxy = { workspace = true }
+agent9527-otel = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-sandboxing = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-path-uri = { workspace = true }
+agent9527-utils-pty = { workspace = true }
+agent9527-utils-rustls-provider = { workspace = true }
+agent9527-websocket-client = { workspace = true }
+futures = { workspace = true }
+http = { workspace = true }
+prost = "0.14.3"
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+toml = { workspace = true }
+tokio = { workspace = true, features = [
+    "fs",
+    "io-std",
+    "io-util",
+    "macros",
+    "net",
+    "process",
+    "rt-multi-thread",
+    "sync",
+    "time",
+] }
+tokio-util = { workspace = true, features = ["io", "rt"] }
+tokio-tungstenite = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.52", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+] }
+
+[dev-dependencies]
+anyhow = { workspace = true }
+agent9527-exec-server-test-support = { workspace = true }
+agent9527-test-binary-support = { workspace = true }
+ctor = { workspace = true }
+http = { workspace = true }
+opentelemetry = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+pretty_assertions = { workspace = true }
+rcgen = { workspace = true }
+rustls = { workspace = true }
+serial_test = { workspace = true }
+tempfile = { workspace = true }
+test-case = "3.3.1"
+tokio = { workspace = true, features = ["test-util"] }
+tracing-opentelemetry = { workspace = true }
+tracing-subscriber = { workspace = true }
+wiremock = { workspace = true }

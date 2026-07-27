@@ -1,0 +1,6 @@
+load("//:defs.bzl", "agent9527_rust_crate")
+
+agent9527_rust_crate(
+    name = "agent-graph-store",
+    crate_name = "agent9527_agent_graph_store",
+)

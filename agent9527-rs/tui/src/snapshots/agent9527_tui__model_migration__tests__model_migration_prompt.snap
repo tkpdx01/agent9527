@@ -1,0 +1,19 @@
+---
+source: tui/src/model_migration.rs
+expression: terminal.backend()
+---
+
+> Agent9527 just got an upgrade. Introducing gpt-5.1-agent95
+
+  Upgrade to gpt-5.2-agent9527 for the latest and greatest
+  agentic coding model.
+
+  You can continue using gpt-5.1-agent9527-mini if you
+  prefer.
+
+  Choose how you'd like Agent9527 to proceed.
+
+› 1. Try new model
+  2. Use existing model
+
+  Use ↑/↓ to move, press enter to confirm

@@ -274,11 +274,11 @@ wheels = [
 ]
 
 [[package]]
-name = "openai-codex"
-version = "20260721.2.0"
+name = "openai-agent9527"
+version = "20260727.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "openai-codex-cli-bin" },
+    { name = "openai-agent9527-cli-bin" },
     { name = "pydantic" },
 ]
 
@@ -299,7 +299,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "openai-codex-cli-bin", directory = "../python-runtime" },
+    { name = "openai-agent9527-cli-bin", directory = "../python-runtime" },
     { name = "pydantic", specifier = ">=2.12" },
 ]
 
@@ -317,8 +317,8 @@ test = [
 ]
 
 [[package]]
-name = "openai-codex-cli-bin"
-version = "20260721.2.0"
+name = "openai-agent9527-cli-bin"
+version = "20260727.1.0"
 source = { directory = "../python-runtime" }
 
 [[package]]

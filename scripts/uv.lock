@@ -3,8 +3,8 @@ revision = 1
 requires-python = ">=3.10"
 
 [[package]]
-name = "codex-scripts"
-version = "20260721.2.0"
+name = "agent9527-scripts"
+version = "20260727.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "ruff" },

@@ -1,0 +1,6 @@
+load("//:defs.bzl", "agent9527_rust_crate")
+
+agent9527_rust_crate(
+    name = "exec-server-protocol",
+    crate_name = "agent9527_exec_server_protocol",
+)

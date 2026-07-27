@@ -1,0 +1,19 @@
+[package]
+name = "agent9527-utils-sandbox-summary"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+agent9527-protocol = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+
+[dev-dependencies]
+agent9527-utils-absolute-path = { workspace = true }
+pretty_assertions = { workspace = true }
+
+[lib]
+doctest = false

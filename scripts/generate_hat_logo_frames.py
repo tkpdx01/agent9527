@@ -7,7 +7,13 @@ from pathlib import Path
 WIDTH = 38
 HEIGHT = 17
 FRAME_COUNT = 36
-FRAME_DIR = Path(__file__).resolve().parents[1] / "codex-rs" / "tui" / "frames" / "codex"
+FRAME_DIR = (
+    Path(__file__).resolve().parents[1]
+    / "agent9527-rs"
+    / "tui"
+    / "frames"
+    / "agent9527"
+)
 BAYER_4X4 = (
     (0, 8, 2, 10),
     (12, 4, 14, 6),
@@ -17,7 +23,9 @@ BAYER_4X4 = (
 DENSITY_CHARS = " ░▒▓█"
 
 
-def ellipse_distance(x: float, y: float, cx: float, cy: float, rx: float, ry: float) -> float:
+def ellipse_distance(
+    x: float, y: float, cx: float, cy: float, rx: float, ry: float
+) -> float:
     return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
 
 
@@ -121,8 +129,12 @@ def write_frames(frames: dict[Path, str]) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate the Codex fedora TUI animation.")
-    parser.add_argument("--check", action="store_true", help="Verify generated frames are current.")
+    parser = argparse.ArgumentParser(
+        description="Generate the Agent9527 fedora TUI animation."
+    )
+    parser.add_argument(
+        "--check", action="store_true", help="Verify generated frames are current."
+    )
     args = parser.parse_args()
 
     frames = expected_frames()

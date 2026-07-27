@@ -1,0 +1,38 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "agent9527-mcp-extension"
+version.workspace = true
+
+[lib]
+name = "agent9527_mcp_extension"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+agent9527-core = { workspace = true }
+agent9527-core-plugins = { workspace = true }
+agent9527-config = { workspace = true }
+agent9527-connectors = { workspace = true }
+agent9527-connectors-extension = { workspace = true }
+agent9527-exec-server = { workspace = true }
+agent9527-extension-api = { workspace = true }
+agent9527-features = { workspace = true }
+agent9527-mcp = { workspace = true }
+agent9527-plugin = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-path-uri = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+
+[dev-dependencies]
+agent9527-login = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

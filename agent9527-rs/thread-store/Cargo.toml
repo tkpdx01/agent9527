@@ -1,0 +1,41 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "agent9527-thread-store"
+version.workspace = true
+
+[lib]
+name = "agent9527_thread_store"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+chrono = { workspace = true, features = ["serde"] }
+agent9527-app-server-protocol = { workspace = true }
+agent9527-git-utils = { workspace = true }
+agent9527-install-context = { workspace = true }
+agent9527-otel = { workspace = true }
+agent9527-protocol = { workspace = true }
+agent9527-rollout = { workspace = true }
+agent9527-state = { workspace = true }
+agent9527-utils-absolute-path = { workspace = true }
+agent9527-utils-path = { workspace = true }
+futures = { workspace = true }
+pulldown-cmark = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sqlx = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+agent9527-utils-absolute-path = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+uuid = { workspace = true }
+zstd = { workspace = true }
