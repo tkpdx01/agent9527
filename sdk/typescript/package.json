@@ -1,6 +1,6 @@
 {
   "name": "@tkpdx01/agent9527-sdk",
-  "version": "20260727.3.0",
+  "version": "20260727.4.0",
   "description": "TypeScript SDK for Agent9527 APIs.",
   "repository": {
     "type": "git",

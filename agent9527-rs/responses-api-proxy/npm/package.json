@@ -1,6 +1,6 @@
 {
   "name": "@tkpdx01/agent9527-responses-api-proxy",
-  "version": "20260727.3.0",
+  "version": "20260727.4.0",
   "license": "Apache-2.0",
   "bin": {
     "agent9527-responses-api-proxy": "bin/agent9527-responses-api-proxy.js"

@@ -1,5 +1,5 @@
 <p align="center"><strong>Agent9527 CLI</strong> is a local coding agent for external OpenAI-compatible APIs.
-<p align="center"><strong>Current version: 20260727.3.0</strong></p>
+<p align="center"><strong>Current version: 20260727.4.0</strong></p>
 </br>
 If you want Agent9527 in your code editor (VS Code, Cursor, Windsurf), <a href="https://developers.openai.com/agent9527/ide">install in your IDE.</a></p>
 
@@ -54,6 +54,6 @@ Agent9527 does not provide account login. Configure an OpenAI-compatible externa
 
 Agent9527 releases use `YYYYMMDD.RELEASE.PATCH`. `RELEASE` starts at `1` for the first release of a day and increments for later releases on the same day; `PATCH` starts at `0` and increments for fixes to that release line. The canonical product version is stored in [`VERSION`](./VERSION) and is used directly by Cargo and npm.
 
-For example, `20260727.3.0` is the first release on July 27, 2026, with no patch increment.
+For example, `20260727.4.0` is the first release on July 27, 2026, with no patch increment.
 
 This repository is licensed under the [Apache-2.0 License](LICENSE).

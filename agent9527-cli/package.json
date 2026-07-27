@@ -1,6 +1,6 @@
 {
   "name": "@tkpdx01/agent9527",
-  "version": "20260727.3.0",
+  "version": "20260727.4.0",
   "description": "Agent9527 CLI is a local coding agent for OpenAI-compatible APIs.",
   "license": "Apache-2.0",
   "bin": {
