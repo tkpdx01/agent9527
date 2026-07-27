@@ -29,3 +29,7 @@ Safety and workflow invariants:
   your integration succeeds.
 - Do not abort the merge or reset away either side's changes.
 - Finish with the desired changes in the worktree and index, without creating a commit.
+
+## Fork automation policy
+
+- Keep .github/dependabot.yaml absent in Agent9527. Dependency updates arrive through upstream sync; running Dependabot in this fork creates duplicate pull requests.
