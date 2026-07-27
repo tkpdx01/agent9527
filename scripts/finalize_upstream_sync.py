@@ -14,6 +14,16 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 VERSION_PATH = REPO_ROOT / "VERSION"
 UPSTREAM_MARKER_PATH = REPO_ROOT / ".github" / "upstream.json"
 VERSION_PATTERN = re.compile(r"^(?P<day>\d{8})\.(?P<sequence>\d+)\.0$")
+UPSTREAM_ZSH_MANIFEST_PATH = Path("scripts") / "agent9527_package" / "agent9527-zsh"
+UPSTREAM_ZSH_REPLACEMENTS = (
+    ('"name": "agent9527-zsh"', '"name": "codex-zsh"'),
+    ('"path": "agent9527-zsh/', '"path": "codex-zsh/'),
+    (
+        "https://github.com/openai/agent9527/releases/download/",
+        "https://github.com/openai/codex/releases/download/",
+    ),
+    ("/agent9527-zsh-", "/codex-zsh-"),
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -83,6 +93,31 @@ def replace_tracked_version(
     return changed_paths
 
 
+def restore_upstream_release_references(repo_root: Path) -> list[Path]:
+    manifest_path = repo_root / UPSTREAM_ZSH_MANIFEST_PATH
+    if not manifest_path.is_file():
+        raise RuntimeError(
+            f"Required upstream zsh manifest is missing: {UPSTREAM_ZSH_MANIFEST_PATH}"
+        )
+
+    original = manifest_path.read_text(encoding="utf-8")
+    restored = original
+    for fork_reference, upstream_reference in UPSTREAM_ZSH_REPLACEMENTS:
+        restored = restored.replace(fork_reference, upstream_reference)
+
+    if "https://github.com/openai/agent9527/releases/" in restored:
+        raise RuntimeError(
+            "Upstream zsh manifest still contains an invalid openai/agent9527 "
+            "release URL."
+        )
+
+    if restored == original:
+        return []
+
+    manifest_path.write_text(restored, encoding="utf-8")
+    return [manifest_path]
+
+
 def write_upstream_marker(
     marker_path: Path,
     *,
@@ -134,6 +169,7 @@ def main() -> int:
     release_date = args.release_date or datetime.now(ZoneInfo("Asia/Shanghai")).date()
     new_version = next_release_version(current_version, release_date)
 
+    restore_upstream_release_references(REPO_ROOT)
     changed_paths = replace_tracked_version(REPO_ROOT, current_version, new_version)
     if VERSION_PATH not in changed_paths:
         raise RuntimeError(

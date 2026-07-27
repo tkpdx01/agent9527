@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from finalize_upstream_sync import next_release_version
 from finalize_upstream_sync import replace_tracked_version
+from finalize_upstream_sync import restore_upstream_release_references
 from finalize_upstream_sync import write_upstream_marker
 
 
@@ -40,13 +41,13 @@ class ReplaceTrackedVersionTest(unittest.TestCase):
             repo_root = Path(temp_dir)
             subprocess.run(["git", "init", "-q"], cwd=repo_root, check=True)
             tracked = repo_root / "tracked.txt"
-            tracked.write_text("version=20260727.3.0\n", encoding="utf-8")
+            tracked.write_text("version=20260727.4.0\n", encoding="utf-8")
             binary = repo_root / "binary.bin"
-            binary.write_bytes(b"\0version=20260727.3.0")
+            binary.write_bytes(b"\0version=20260727.4.0")
             deleted = repo_root / "deleted.txt"
-            deleted.write_text("version=20260727.3.0\n", encoding="utf-8")
+            deleted.write_text("version=20260727.4.0\n", encoding="utf-8")
             untracked = repo_root / "untracked.txt"
-            untracked.write_text("version=20260727.3.0\n", encoding="utf-8")
+            untracked.write_text("version=20260727.4.0\n", encoding="utf-8")
             subprocess.run(
                 ["git", "add", "tracked.txt", "binary.bin", "deleted.txt"],
                 cwd=repo_root,
@@ -54,13 +55,66 @@ class ReplaceTrackedVersionTest(unittest.TestCase):
             )
             deleted.unlink()
 
-            changed = replace_tracked_version(repo_root, "20260727.3.0", "20260727.3.0")
+            changed = replace_tracked_version(repo_root, "20260727.4.0", "20260727.4.0")
 
             self.assertEqual(changed, [tracked])
-            self.assertEqual(tracked.read_text(), "version=20260727.3.0\n")
-            self.assertEqual(binary.read_bytes(), b"\0version=20260727.3.0")
+            self.assertEqual(tracked.read_text(), "version=20260727.4.0\n")
+            self.assertEqual(binary.read_bytes(), b"\0version=20260727.4.0")
             self.assertFalse(deleted.exists())
-            self.assertEqual(untracked.read_text(), "version=20260727.3.0\n")
+            self.assertEqual(untracked.read_text(), "version=20260727.4.0\n")
+
+
+class RestoreUpstreamReleaseReferencesTest(unittest.TestCase):
+    def test_restores_upstream_zsh_artifact_references(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo_root = Path(temp_dir)
+            manifest_path = (
+                repo_root / "scripts" / "agent9527_package" / "agent9527-zsh"
+            )
+            manifest_path.parent.mkdir(parents=True)
+            manifest_path.write_text(
+                """#!/usr/bin/env dotslash
+
+{
+  "name": "agent9527-zsh",
+  "platforms": {
+    "linux-aarch64": {
+      "path": "agent9527-zsh/bin/zsh",
+      "providers": [
+        {
+          "url": "https://github.com/openai/agent9527/releases/download/rust-v1/agent9527-zsh-aarch64-unknown-linux-musl.tar.gz"
+        }
+      ]
+    }
+  }
+}
+""",
+                encoding="utf-8",
+            )
+
+            changed = restore_upstream_release_references(repo_root)
+
+            self.assertEqual(changed, [manifest_path])
+            self.assertEqual(
+                manifest_path.read_text(encoding="utf-8"),
+                """#!/usr/bin/env dotslash
+
+{
+  "name": "codex-zsh",
+  "platforms": {
+    "linux-aarch64": {
+      "path": "codex-zsh/bin/zsh",
+      "providers": [
+        {
+          "url": "https://github.com/openai/codex/releases/download/rust-v1/codex-zsh-aarch64-unknown-linux-musl.tar.gz"
+        }
+      ]
+    }
+  }
+}
+""",
+            )
+            self.assertEqual(restore_upstream_release_references(repo_root), [])
 
 
 class WriteUpstreamMarkerTest(unittest.TestCase):
@@ -70,7 +124,7 @@ class WriteUpstreamMarkerTest(unittest.TestCase):
             write_upstream_marker(
                 marker_path,
                 upstream_sha="a" * 40,
-                version="20260727.3.0",
+                version="20260727.4.0",
                 synced_at="2026-07-27T12:00:00+08:00",
             )
 
@@ -80,7 +134,7 @@ class WriteUpstreamMarkerTest(unittest.TestCase):
                     "repository": "https://github.com/openai/codex",
                     "branch": "main",
                     "commit": "a" * 40,
-                    "version": "20260727.3.0",
+                    "version": "20260727.4.0",
                     "syncedAt": "2026-07-27T12:00:00+08:00",
                 },
             )
