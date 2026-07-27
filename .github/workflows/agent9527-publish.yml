@@ -11,18 +11,29 @@ on:
         required: true
         default: main
         type: string
+      source_run_id:
+        description: Existing workflow run whose npm artifacts should be reused
+        required: false
+        type: string
+      publish_npm:
+        description: Publish the downloaded tarballs to npm
+        required: true
+        default: true
+        type: boolean
 
 concurrency:
   group: agent9527-publish-${{ inputs.release_ref || github.ref }}
   cancel-in-progress: false
 
 permissions:
+  actions: read
   contents: write
   id-token: write
 
 jobs:
   build-platform-packages:
     name: Build ${{ matrix.target }} npm package
+    if: inputs.source_run_id == ''
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 180
     strategy:
@@ -167,6 +178,7 @@ jobs:
 
   build-root-package:
     name: Build root npm package
+    if: inputs.source_run_id == ''
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -201,6 +213,11 @@ jobs:
     needs:
       - build-platform-packages
       - build-root-package
+    if: >-
+      always() &&
+      (inputs.source_run_id != '' ||
+      (needs.build-platform-packages.result == 'success' &&
+      needs.build-root-package.result == 'success'))
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     environment: npm
@@ -216,6 +233,8 @@ jobs:
           pattern: npm-*
           merge-multiple: true
           path: dist/npm
+          run-id: ${{ inputs.source_run_id || github.run_id }}
+          github-token: ${{ github.token }}
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -238,7 +257,34 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
+      - name: Create or update GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.metadata.outputs.tag }}
+          VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          set -euo pipefail
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            git tag -a "$TAG" -m "Release Agent9527 ${VERSION}"
+            git push origin "$TAG"
+          fi
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/npm/*.tgz \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          else
+            gh release create "$TAG" dist/npm/*.tgz \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Agent9527 ${VERSION}" \
+              --generate-notes \
+              --latest
+          fi
+
       - name: Publish npm tarballs
+        if: github.event_name != 'workflow_dispatch' || inputs.publish_npm
         shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -287,29 +333,3 @@ jobs:
               --provenance \
               --tag "$npm_tag"
           done
-
-      - name: Create or update GitHub release
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.metadata.outputs.tag }}
-          VERSION: ${{ steps.metadata.outputs.version }}
-        run: |
-          set -euo pipefail
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
-            git tag -a "$TAG" -m "Release Agent9527 ${VERSION}"
-            git push origin "$TAG"
-          fi
-
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$TAG" dist/npm/*.tgz \
-              --repo "$GITHUB_REPOSITORY" \
-              --clobber
-          else
-            gh release create "$TAG" dist/npm/*.tgz \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "Agent9527 ${VERSION}" \
-              --generate-notes \
-              --latest
-          fi
