@@ -1,12 +1,16 @@
 use agent9527_utils_absolute_path::test_support::PathExt;
+use pretty_assertions::assert_eq;
+use sqlx::AssertSqlSafe;
 use sqlx::Connection;
 use sqlx::Row;
+use sqlx::SqlSafeStr;
 use sqlx::migrate::Migration;
 use sqlx::migrate::Migrator;
 use std::borrow::Cow;
 
 use super::STATE_MIGRATOR;
 use super::THREAD_HISTORY_MIGRATOR;
+use super::repair_crlf_migration_checksums;
 use super::repair_legacy_recency_migration_version;
 
 fn migrator_through(version: i64) -> Migrator {
@@ -25,6 +29,108 @@ fn migrator_through(version: i64) -> Migrator {
         create_schemas: STATE_MIGRATOR.create_schemas.clone(),
         no_tx: STATE_MIGRATOR.no_tx,
     }
+}
+
+#[tokio::test]
+async fn crlf_migration_checksums_are_repaired_to_canonical_checksums() {
+    let sqlite_home = crate::runtime::test_support::unique_temp_dir();
+    tokio::fs::create_dir_all(&sqlite_home)
+        .await
+        .expect("sqlite home should be created");
+    let _cleanup = scopeguard::guard(sqlite_home.clone(), |sqlite_home| {
+        let _ = std::fs::remove_dir_all(sqlite_home);
+    });
+    let sqlite = crate::SqliteConfig::new_for_testing(sqlite_home.as_path().abs());
+    let state_path = sqlite.state_db_path();
+    let pool = sqlite
+        .open_read_write_pool(&state_path)
+        .await
+        .expect("sqlite database should open");
+    let canonical_migrator = migrator_through(/*version*/ 3);
+    let crlf_migrator = Migrator::with_migrations(
+        canonical_migrator
+            .migrations
+            .iter()
+            .map(|migration| {
+                let normalized_sql = migration.sql.as_str().replace("\r\n", "\n");
+                Migration::new(
+                    migration.version,
+                    migration.description.clone(),
+                    migration.migration_type,
+                    AssertSqlSafe(normalized_sql.replace('\n', "\r\n")).into_sql_str(),
+                    migration.no_tx,
+                )
+            })
+            .collect(),
+    );
+    crlf_migrator
+        .run(&pool)
+        .await
+        .expect("CRLF migrations should apply");
+
+    repair_crlf_migration_checksums(&pool, &canonical_migrator)
+        .await
+        .expect("CRLF checksums should be repaired");
+    canonical_migrator
+        .run(&pool)
+        .await
+        .expect("canonical migrations should validate after repair");
+
+    let applied = sqlx::query_as::<_, (i64, Vec<u8>)>(
+        "SELECT version, checksum FROM _sqlx_migrations ORDER BY version",
+    )
+    .fetch_all(&pool)
+    .await
+    .expect("applied migrations should load");
+    let expected = canonical_migrator
+        .migrations
+        .iter()
+        .map(|migration| (migration.version, migration.checksum.to_vec()))
+        .collect::<Vec<_>>();
+    assert_eq!(applied, expected);
+
+    pool.close().await;
+}
+
+#[tokio::test]
+async fn non_crlf_migration_checksum_is_not_repaired() {
+    let sqlite_home = crate::runtime::test_support::unique_temp_dir();
+    tokio::fs::create_dir_all(&sqlite_home)
+        .await
+        .expect("sqlite home should be created");
+    let _cleanup = scopeguard::guard(sqlite_home.clone(), |sqlite_home| {
+        let _ = std::fs::remove_dir_all(sqlite_home);
+    });
+    let sqlite = crate::SqliteConfig::new_for_testing(sqlite_home.as_path().abs());
+    let state_path = sqlite.state_db_path();
+    let pool = sqlite
+        .open_read_write_pool(&state_path)
+        .await
+        .expect("sqlite database should open");
+    let canonical_migrator = migrator_through(/*version*/ 1);
+    canonical_migrator
+        .run(&pool)
+        .await
+        .expect("canonical migration should apply");
+    let unexpected_checksum = vec![0xA5; 48];
+    sqlx::query("UPDATE _sqlx_migrations SET checksum = ? WHERE version = 1")
+        .bind(&unexpected_checksum)
+        .execute(&pool)
+        .await
+        .expect("migration checksum should be changed for the test");
+
+    repair_crlf_migration_checksums(&pool, &canonical_migrator)
+        .await
+        .expect("unrecognized checksum should be left for sqlx to validate");
+
+    let applied_checksum =
+        sqlx::query_scalar::<_, Vec<u8>>("SELECT checksum FROM _sqlx_migrations WHERE version = 1")
+            .fetch_one(&pool)
+            .await
+            .expect("applied checksum should load");
+    assert_eq!(applied_checksum, unexpected_checksum);
+
+    pool.close().await;
 }
 
 #[tokio::test]

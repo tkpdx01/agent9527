@@ -1,5 +1,9 @@
 agent9527-rs/app-server-protocol/schema/** linguist-generated
 agent9527-rs/hooks/schema/generated/** linguist-generated
 
+# sqlx migration checksums include line endings, so keep them stable across
+# native Windows and Unix builds.
+*.sql text eol=lf
+
 # Ratatui snapshots preserve fixed-width trailing padding.
 *.snap -whitespace

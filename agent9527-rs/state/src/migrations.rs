@@ -1,6 +1,9 @@
 use std::borrow::Cow;
 
+use sqlx::AssertSqlSafe;
+use sqlx::SqlSafeStr;
 use sqlx::SqlitePool;
+use sqlx::migrate::Migration;
 use sqlx::migrate::Migrator;
 
 pub(crate) static STATE_MIGRATOR: Migrator = sqlx::migrate!("./migrations");
@@ -48,6 +51,70 @@ pub(crate) fn runtime_thread_history_migrator() -> Migrator {
     runtime_migrator(&THREAD_HISTORY_MIGRATOR)
 }
 
+/// Repair migration checksums written by the Windows release that embedded
+/// CRLF-normalized SQL files. Only exact CRLF equivalents of the current
+/// migration are accepted, so genuinely modified migrations still fail the
+/// normal sqlx checksum validation.
+pub(crate) async fn repair_crlf_migration_checksums(
+    pool: &SqlitePool,
+    migrator: &Migrator,
+) -> anyhow::Result<()> {
+    if !migrations_table_exists(pool).await? {
+        return Ok(());
+    }
+
+    let applied_migrations = sqlx::query_as::<_, (i64, Vec<u8>)>(
+        "SELECT version, checksum FROM _sqlx_migrations WHERE success = TRUE",
+    )
+    .fetch_all(pool)
+    .await?;
+
+    for migration in migrator.migrations.iter() {
+        let Some((_, applied_checksum)) = applied_migrations
+            .iter()
+            .find(|(version, _)| *version == migration.version)
+        else {
+            continue;
+        };
+        if applied_checksum.as_slice() == migration.checksum.as_ref() {
+            continue;
+        }
+
+        let normalized_sql = migration.sql.as_str().replace("\r\n", "\n");
+        let crlf_sql = normalized_sql.replace('\n', "\r\n");
+        if crlf_sql == migration.sql.as_str() {
+            continue;
+        }
+        let crlf_migration = Migration::new(
+            migration.version,
+            migration.description.clone(),
+            migration.migration_type,
+            AssertSqlSafe(crlf_sql).into_sql_str(),
+            migration.no_tx,
+        );
+        if applied_checksum.as_slice() != crlf_migration.checksum.as_ref() {
+            continue;
+        }
+
+        sqlx::query(
+            r#"
+UPDATE _sqlx_migrations
+SET checksum = ?
+WHERE version = ?
+  AND success = TRUE
+  AND checksum = ?
+            "#,
+        )
+        .bind(migration.checksum.as_ref())
+        .bind(migration.version)
+        .bind(applied_checksum)
+        .execute(pool)
+        .await?;
+    }
+
+    Ok(())
+}
+
 pub(crate) async fn repair_legacy_recency_migration_version(
     pool: &SqlitePool,
     migrator: &Migrator,
@@ -59,13 +126,7 @@ pub(crate) async fn repair_legacy_recency_migration_version(
     else {
         return Ok(());
     };
-    let migrations_table_exists = sqlx::query_scalar::<_, i64>(
-        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = '_sqlx_migrations'",
-    )
-    .fetch_optional(pool)
-    .await?
-    .is_some();
-    if !migrations_table_exists {
+    if !migrations_table_exists(pool).await? {
         return Ok(());
     }
 
@@ -109,6 +170,15 @@ WHERE version = ?
     .execute(pool)
     .await?;
     Ok(())
+}
+
+async fn migrations_table_exists(pool: &SqlitePool) -> anyhow::Result<bool> {
+    Ok(sqlx::query_scalar::<_, i64>(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = '_sqlx_migrations'",
+    )
+    .fetch_optional(pool)
+    .await?
+    .is_some())
 }
 
 #[cfg(test)]

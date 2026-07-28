@@ -1,6 +1,7 @@
 //! Shared SQLite connection configuration.
 
 use crate::DbTelemetry;
+use crate::migrations::repair_crlf_migration_checksums;
 use crate::migrations::repair_legacy_recency_migration_version;
 use crate::runtime::RuntimeDbInitError;
 use crate::telemetry;
@@ -218,6 +219,7 @@ impl SqliteConfig {
         })?;
         let started = Instant::now();
         let migrate_result = async {
+            repair_crlf_migration_checksums(&pool, migrator).await?;
             if matches!(spec.kind, DbKind::State) {
                 repair_legacy_recency_migration_version(&pool, migrator).await?;
             }
