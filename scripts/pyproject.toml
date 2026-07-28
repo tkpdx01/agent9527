@@ -1,6 +1,6 @@
 [project]
 name = "agent9527-scripts"
-version = "20260727.4.0"
+version = "20260728.1.0"
 requires-python = ">=3.10"
 dependencies = ["ruff>=0.15.8"]
 

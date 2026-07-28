@@ -41,13 +41,13 @@ class ReplaceTrackedVersionTest(unittest.TestCase):
             repo_root = Path(temp_dir)
             subprocess.run(["git", "init", "-q"], cwd=repo_root, check=True)
             tracked = repo_root / "tracked.txt"
-            tracked.write_text("version=20260727.4.0\n", encoding="utf-8")
+            tracked.write_text("version=20260728.1.0\n", encoding="utf-8")
             binary = repo_root / "binary.bin"
-            binary.write_bytes(b"\0version=20260727.4.0")
+            binary.write_bytes(b"\0version=20260728.1.0")
             deleted = repo_root / "deleted.txt"
-            deleted.write_text("version=20260727.4.0\n", encoding="utf-8")
+            deleted.write_text("version=20260728.1.0\n", encoding="utf-8")
             untracked = repo_root / "untracked.txt"
-            untracked.write_text("version=20260727.4.0\n", encoding="utf-8")
+            untracked.write_text("version=20260728.1.0\n", encoding="utf-8")
             subprocess.run(
                 ["git", "add", "tracked.txt", "binary.bin", "deleted.txt"],
                 cwd=repo_root,
@@ -55,13 +55,13 @@ class ReplaceTrackedVersionTest(unittest.TestCase):
             )
             deleted.unlink()
 
-            changed = replace_tracked_version(repo_root, "20260727.4.0", "20260727.4.0")
+            changed = replace_tracked_version(repo_root, "20260728.1.0", "20260728.1.0")
 
             self.assertEqual(changed, [tracked])
-            self.assertEqual(tracked.read_text(), "version=20260727.4.0\n")
-            self.assertEqual(binary.read_bytes(), b"\0version=20260727.4.0")
+            self.assertEqual(tracked.read_text(), "version=20260728.1.0\n")
+            self.assertEqual(binary.read_bytes(), b"\0version=20260728.1.0")
             self.assertFalse(deleted.exists())
-            self.assertEqual(untracked.read_text(), "version=20260727.4.0\n")
+            self.assertEqual(untracked.read_text(), "version=20260728.1.0\n")
 
 
 class RestoreUpstreamReleaseReferencesTest(unittest.TestCase):
@@ -124,7 +124,7 @@ class WriteUpstreamMarkerTest(unittest.TestCase):
             write_upstream_marker(
                 marker_path,
                 upstream_sha="a" * 40,
-                version="20260727.4.0",
+                version="20260728.1.0",
                 synced_at="2026-07-27T12:00:00+08:00",
             )
 
@@ -134,7 +134,7 @@ class WriteUpstreamMarkerTest(unittest.TestCase):
                     "repository": "https://github.com/openai/codex",
                     "branch": "main",
                     "commit": "a" * 40,
-                    "version": "20260727.4.0",
+                    "version": "20260728.1.0",
                     "syncedAt": "2026-07-27T12:00:00+08:00",
                 },
             )

@@ -3,7 +3,7 @@ source: tui/src/history_cell/tests.rs
 expression: rendered
 ---
 ╭─────────────────────────────────────────────────────╮
-│ ✨ Update available! 20260727.4.0 -> 9.9.9          │
+│ ✨ Update available! 20260728.1.0 -> 9.9.9          │
 │ Run pnpm add -g @tkpdx01/agent9527 to update.       │
 │                                                     │
 │ See full release notes:                             │
