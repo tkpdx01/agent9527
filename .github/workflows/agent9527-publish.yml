@@ -409,6 +409,7 @@ jobs:
               --access public \
               --provenance \
               --tag "$npm_tag"
+          done
 
   publish-artifact:
     name: Publish ${{ inputs.artifact_name }}
@@ -466,4 +467,3 @@ jobs:
             --access public \
             --provenance \
             --tag "$npm_tag"
-          done
